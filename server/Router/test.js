@@ -72,8 +72,18 @@ router.get('/cart', cors(corsOptions), function (req, res) {
         <h1>Cart</h1>
         <ul>${output}</ul>
         <a href="/">Product</a>
+        <a href="/delete">Delete</a>
     `);
     res.json(output);
+});
+
+router.get('/delete', function (req, res) {
+    if (req.cookies.cart) {
+        res.clearCookie('cart');
+    } else {
+
+    };
+    res.redirect('/cart');
 });
 
 // router.get('/', (req, res)=>{
