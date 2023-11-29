@@ -1,6 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
+
+const corsOptions = {
+    origin: 'http://localhost:3000', // 허용할 출처
+    optionsSuccessStatus: 200, // CORS 요청 성공 상태 코드
+};
 
 router.use(cookieParser());
 
@@ -9,7 +15,7 @@ var products = {
     2:{title : 'The next web'}
 };
 
-router.get('/products', function (req, res) {
+router.get('/', cors(corsOptions), function (req, res) {
     var output = '';
     for (var name in products) {
         output += `
@@ -33,7 +39,7 @@ cart = {
 }
 */
 
-router.get('/cart/:id', function (req, res) {
+router.get('/cart/:id', cors(corsOptions), function (req, res) {
     var id = req.params.id;
     if (req.cookies.cart) {
         var cart = req.cookies.cart;
@@ -48,10 +54,10 @@ router.get('/cart/:id', function (req, res) {
     res.redirect('/cart');
 });
 
-router.get('/cart', function (req, res) {
+router.get('/cart', cors(corsOptions), function (req, res) {
     var cart = req.cookies.cart;
     if (!cart) {
-        res.rend('Empty!');
+        res.send('Empty!');
     } else {
         var output = '';
         for (var id in cart) {
@@ -65,20 +71,21 @@ router.get('/cart', function (req, res) {
     res.send(`
         <h1>Cart</h1>
         <ul>${output}</ul>
-        <a href="/products">Product</a>
+        <a href="/">Product</a>
     `);
+    res.json(output);
 });
 
-router.get('/', (req, res)=>{
-    if (req.cookies.count) {
-        var count = parseInt(req.cookies.count);
-    } else {
-        var count = 0;
-    };
-    count = count + 1
-    res.cookie('count', count);
-    res.send('count : ' + count);
-    // res.send({ test: "hi" });
-});
+// router.get('/', (req, res)=>{
+//     if (req.cookies.count) {
+//         var count = parseInt(req.cookies.count);
+//     } else {
+//         var count = 0;
+//     };
+//     count = count + 1
+//     res.cookie('count', count);
+//     res.send('count : ' + count);
+//     // res.send({ test: "hi" });
+// });
 
 module.exports = router;
