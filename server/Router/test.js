@@ -10,27 +10,94 @@ const corsOptions = {
 
 router.use(cookieParser());
 
-var products = {
-    1: {title : 'The history of web 1'},
-    2: {title : 'The next web'}
-};
-
-router.get('/', cors(corsOptions), function (req, res) {
-    var output = '';
-    for (var name in products) {
-        output += `
-            <li>
-                <a href="/cart/${name}">${products[name].title}</a>
-            </li>
-        `
-        // console.log(products[name].title);
-    }
-    res.send(`
-        <h1>Products</h1>
-        <ul>${output}</ul>
-        <a href="/cart">Cart</a>
-    `);
+router.get('', cors(corsOptions), function (req, res) {
+    res.send(`main`);
 });
+
+router.get('/api/mentors', cors(corsOptions), function (req, res) {
+    res.send({
+        id: "1",
+        isready: false,
+        nation: "Japan",
+        englishname: "Shimanun",
+        chinesename: "岛勋",
+        japanesename: "しまぬん",
+        nickname: "시마눈",
+        isnew: false,
+        slideimage: {
+            status: "Left",
+            bigger: false,
+            background: "",
+            nickname: ""
+        },
+        portfolio: [
+            
+        ],
+        content: {
+            englishcontent: [
+                
+            ],
+            chinesecontent: [
+                
+            ],
+            japanesecontent: [
+                
+            ],
+            koreancontent: [
+                
+            ],
+        },
+        sns: [
+            {
+                icon: "",
+                link: ""
+            },
+            {
+                icon: "",
+                link: ""
+            },
+            {
+                icon: "",
+                link: "https://x.com/shimanunEO?s=20"
+            },
+            {
+                icon: "",
+                link: ""
+            },
+            {
+                icon: "",
+                link: ""
+            },
+            {
+                icon: "",
+                link: ""
+            }
+        ],
+        image: ""
+    });
+});
+
+// var products = {
+//     1: {title : 'The history of web 1'},
+//     2: {title : 'The next web'}
+// };
+
+// router.get('/', cors(corsOptions), function (req, res) {
+//     var output = '';
+//     for (var name in products) {
+//         output += `
+//             <li>
+//                 <a href="/cart/${name}">${products[name].title}</a>
+//             </li>
+//         `
+//         // console.log(products[name].title);
+//     }
+//     res.send(`
+//         <h1>Products</h1>
+//         <ul>${output}</ul>
+//         <a href="/cart">Cart</a>
+//     `);
+// });
 
 /*
 cart = {
@@ -39,52 +106,52 @@ cart = {
 }
 */
 
-router.get('/cart/:id', cors(corsOptions), function (req, res) {
-    var id = req.params.id;
-    if (req.cookies.cart) {
-        var cart = req.cookies.cart;
-    } else {
-        var cart = {};
-    };
-    if (!cart[id]) {
-        cart[id] = 0;
-    }
-    cart[id] = parseInt(cart[id]) + 1;
-    res.cookie('cart', cart);
-    res.redirect('/cart');
-});
+// router.get('/cart/:id', cors(corsOptions), function (req, res) {
+//     var id = req.params.id;
+//     if (req.cookies.cart) {
+//         var cart = req.cookies.cart;
+//     } else {
+//         var cart = {};
+//     };
+//     if (!cart[id]) {
+//         cart[id] = 0;
+//     }
+//     cart[id] = parseInt(cart[id]) + 1;
+//     res.cookie('cart', cart);
+//     res.redirect('/cart');
+// });
 
-router.get('/cart', cors(corsOptions), function (req, res) {
-    var cart = req.cookies.cart;
-    if (!cart) {
-        res.send('Empty!');
-    } else {
-        var output = '';
-        for (var id in cart) {
-            output += `
-                <li>
-                    ${products[id].title} (${cart[id]})
-                </li>
-            `;
-        };
-    };
-    res.send(`
-        <h1>Cart</h1>
-        <ul>${output}</ul>
-        <a href="/">Product</a>
-        <a href="/delete">Delete</a>
-    `);
-    res.json(output);
-});
+// router.get('/cart', cors(corsOptions), function (req, res) {
+//     var cart = req.cookies.cart;
+//     if (!cart) {
+//         res.send('Empty!');
+//     } else {
+//         var output = '';
+//         for (var id in cart) {
+//             output += `
+//                 <li>
+//                     ${products[id].title} (${cart[id]})
+//                 </li>
+//             `;
+//         };
+//     };
+//     res.send(`
+//         <h1>Cart</h1>
+//         <ul>${output}</ul>
+//         <a href="/">Product</a>
+//         <a href="/delete">Delete</a>
+//     `);
+//     res.json(output);
+// });
 
-router.get('/delete', function (req, res) {
-    if (req.cookies.cart) {
-        res.clearCookie('cart');
-    } else {
+// router.get('/delete', function (req, res) {
+//     if (req.cookies.cart) {
+//         res.clearCookie('cart');
+//     } else {
 
-    };
-    res.redirect('/');
-});
+//     };
+//     res.redirect('/');
+// });
 
 // router.get('/', (req, res)=>{
 //     if (req.cookies.count) {
