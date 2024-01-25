@@ -11,8 +11,8 @@ const corsOptions = {
 router.use(cookieParser());
 
 var products = {
-    1:{title : 'The history of web 1'},
-    2:{title : 'The next web'}
+    1: {title : 'The history of web 1'},
+    2: {title : 'The next web'}
 };
 
 router.get('/', cors(corsOptions), function (req, res) {
@@ -83,7 +83,7 @@ router.get('/delete', function (req, res) {
     } else {
 
     };
-    res.redirect('/cart');
+    res.redirect('/');
 });
 
 // router.get('/', (req, res)=>{
