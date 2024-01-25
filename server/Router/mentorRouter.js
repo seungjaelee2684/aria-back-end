@@ -1,20 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
-
-const corsOptions = {
-    origin: 'http://localhost:3000', // 허용할 출처
-    optionsSuccessStatus: 200, // CORS 요청 성공 상태 코드
-};
 
 router.use(cookieParser());
 
-router.get('', cors(corsOptions), function (req, res) {
-    res.send(`main`);
-});
-
-router.get('/api/mentors', cors(corsOptions), function (req, res) {
+router.get('/', function (req, res) {
     res.send({
         id: "1",
         isready: false,
