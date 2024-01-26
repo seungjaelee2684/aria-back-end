@@ -8,7 +8,7 @@ module.exports = () => {
         mongoose.connect(
             "mongodb://localhost:27017/til",
             {
-                debug: "til"
+                dbName: "til"
             },
             error => {
                 if (error) {
@@ -19,4 +19,16 @@ module.exports = () => {
             }
         );
     }
+
+    connect();
+
+    mongoose.connection.on("error", error => {
+        console.log("몽고디비 연결 에러", error);
+    });
+
+    mongoose.connection.on("disconnected", () => {
+        console.log("몽고디비 연결이 끊겼습니다. 연결을 재시도 합니다.");
+        connect();
+    });
+    require("./mentor");
 };
