@@ -2,9 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const session = require('express-session');
+const connect = require('./Schemas');
 const main = require('./Router/mainRouter');
 const mentor = require('./Router/mentorRouter');
 const notice = require('./Router/noticeRouter');
+
+connect();
 
 const corsOptions = {
     origin: true, // 허용할 출처
