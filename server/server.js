@@ -2,10 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const session = require('express-session');
-const connect = require('./Schemas');
-const main = require('./Router/mainRouter');
-const mentor = require('./Router/mentorRouter');
-const notice = require('./Router/noticeRouter');
+const connect = require('./lib');
+const main = require('./routes/mainRouter');
+const mentor = require('./routes/mentorRouter');
+const notice = require('./routes/noticeRouter');
 
 // connect();
 
@@ -36,7 +36,7 @@ app.use('/', main);
 app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
 
-const port=433; // HTTPS 통신은 433
+const port=8080; // HTTPS 통신은 433
 app.listen(port, function () {
     console.log(`Listening on port ${port}`)
 }); // 서버 열기
