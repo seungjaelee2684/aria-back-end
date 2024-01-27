@@ -1,13 +1,12 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const session = require('express-session');
-const connect = require('./lib');
-const main = require('./routes/mainRouter');
-const mentor = require('./routes/mentorRouter');
-const notice = require('./routes/noticeRouter');
+const mentor = require('./app/mysql/routes/mentorRouter');
+const notice = require('./app/mysql/routes/noticeRouter');
 
-// connect();
+const PORT = process.env.PORT || 8080;
 
 const corsOptions = {
     origin: true, // 허용할 출처
@@ -29,14 +28,19 @@ app.use(
 
 app.use(cors(corsOptions));
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/', main);
 app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
 
-const port=8080; // HTTPS 통신은 433
-app.listen(port, function () {
-    console.log(`Listening on port ${port}`)
+app.get("/", (req, res) => {
+    res.json({ message: `Server is running on port ${PORT}` });
+});
+
+app.listen(PORT, function () {
+    console.log(`Listening on port ${PORT}`)
 }); // 서버 열기
