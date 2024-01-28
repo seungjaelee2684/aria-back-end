@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const connection = require('../connection.json');
+const mentorNameModel = require('./MentorsSchema');
 
 const uri = connection.mongoURL;
 
@@ -10,9 +11,36 @@ const connectDB = async () => {
             useNewUrlParser: true,
         });
         console.log("MongoDB Connected...");
+        // await addDocument();
     } catch (error) {
         console.error(error.message, error.stack);
         process.exit(1);
+    }
+};
+
+// 새로운 문서를 추가하는 함수
+const addDocument = async () => {
+    try {
+        // 새로운 문서 생성
+        const newDocument = new mentorNameModel({
+            mentorsId: "1",
+            englishname: "Sanpati",
+            chinesename: "圣帕蒂",
+            japanesename: "さんぱち",
+            nickname: "산파치",
+            nation: "Japan",
+            createdAt: new Date()
+        });
+
+        // MongoDB에 문서 저장
+        await newDocument.save();
+
+        console.log("Document added successfully");
+    } catch (error) {
+        console.error("Error adding document:", error);
+    } finally {
+        // 연결 종료
+        mongoose.disconnect();
     }
 };
 
