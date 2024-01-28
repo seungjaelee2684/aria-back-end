@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const mentorsSchema = new mongoose.Schema({
+const mentorsNameSchema = new mongoose.Schema({
     mentorsId: {
         type: String,
         required: true,
@@ -36,4 +36,4 @@ const mentorsSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('mentor_name', mentorsSchema);
+module.exports = mongoose.model('mentor_name', mentorsNameSchema);
