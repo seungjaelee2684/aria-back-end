@@ -3,8 +3,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const session = require('express-session');
-const mentor = require('./app/mysql/routes/mentorRouter');
-const notice = require('./app/mysql/routes/noticeRouter');
+const connect = require('./Schemas/index');
+const mentor = require('./routes/mentorRouter');
+const notice = require('./routes/noticeRouter');
 
 const PORT = process.env.PORT || 8080;
 
