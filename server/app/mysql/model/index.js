@@ -12,10 +12,10 @@ connection.connect((err) => {
     }
 });
 
-// connection.query('SELECT * from {table}', (error, rows, fields) => {
-//     if (error) throw error;
-//         console.log('User info is: ', rows);
-// });
+connection.query('SELECT * from {table}', (error, rows, fields) => {
+    if (error) throw error;
+        console.log('User info is: ', rows);
+});
 
 connection.end();
 
