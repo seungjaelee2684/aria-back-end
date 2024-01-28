@@ -45,14 +45,28 @@ router.post('', async function (req, res) {
     };
 });
 
-router.get('/?page=1&size=16&nationstatus=All', function (req, res) {
-    // db.query('SELECT * from Users', (error, results, fields) => {
-    //     if (error) throw error;
-    //     console.log('User info is: ', results);
-    //     res.send(results);
-    // });
-    // console.log(req.body);
-    res.json(mentorListData);
+router.get('', async function (req, res) {
+    try {
+        const mentor_name = await Mentor.find();
+        const page = req.query.page;
+        const size = req.query.size;
+        const nationstatus = req.query.nationstatus;
+
+        const pageData = mentor_name.slice(0, size * page);
+
+        const result = {
+            page: page,
+            size: size,
+            nationstatus: nationstatus
+        };
+
+        res.json(pageData);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    };
+    
 });
 
 router.get('/:mentorsId', function (req, res) {
