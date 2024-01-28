@@ -3,48 +3,49 @@ const router = express.Router();
 let db;
 const cookieParser = require('cookie-parser');
 const mentorListData = require('../lib/mentor');
-const Mentor = require('../Schemas/MentorsSchema');
+const Mentor = require('../Schemas/MentorsNameSchema');
 
 router.use(cookieParser());
 
-router.post('/', async function (req, res) {
+router.post('', async function (req, res) {
+    try {
+        const mentor_name = await Mentor.find();
+        let result = mentor_name;
+        const id_data = String(result.length + 1);
+        const createdAt = new Date();
 
-    const mentor_name = await Mentor.find();
+        const {
+            englishname,
+            chinesename,
+            japanesename,
+            nickname,
+            nation
+        } = req.body;
 
-    let result = mentor_name;
+        const mentorsData = {
+            mentorsId: id_data,
+            englishname: englishname,
+            chinesename: chinesename,
+            japanesename: japanesename,
+            nickname: nickname,
+            nation: nation,
+            createdAt: createdAt,
+            updatedaAt: createdAt
+        };
 
-    const id_data = String(result.length + 1);
+        const createdMentor = await Mentor.create(mentorsData);
 
-    const createdAt = new Date();
+        result.push(mentorsData);
 
-    const {
-        englishname,
-        chinesename,
-        japanesename,
-        nickname,
-        nation
-    } = req.body;
-
-    const mentorsData = {
-        mentorsId: id_data,
-        englishname: englishname,
-        chinesename: chinesename,
-        japanesename: japanesename,
-        nickname: nickname,
-        nation: nation,
-        createdAt: createdAt,
-        updatedaAt: createdAt
+        const mentor = { mentorList: result }
+        res.json(mentor);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
     };
-
-    result.push(mentorsData);
-
-    // Mentor.insertOne(mentorsData);
-
-    const mentor = { mentorList: result }
-    res.json(mentor);
 });
 
-router.get('/', function (req, res) {
+router.get('/?page=1&size=16&nationstatus=All', function (req, res) {
     // db.query('SELECT * from Users', (error, results, fields) => {
     //     if (error) throw error;
     //     console.log('User info is: ', results);
