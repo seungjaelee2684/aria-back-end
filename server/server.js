@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const session = require('express-session');
-const connect = require('./Schemas/index');
+const connectDB = require("./Schemas/db");
 const mentor = require('./routes/mentorRouter');
 const notice = require('./routes/noticeRouter');
 
@@ -37,6 +37,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
+
+connectDB();
 
 app.get("/", (req, res) => {
     res.json({ message: `Server is running on port ${PORT}` });

@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const cookieParser = require('cookie-parser');
-// const connection = require('../model/index');
 const mentorListData = require('../lib/mentor');
 
 router.use(cookieParser());
