@@ -28,7 +28,7 @@ router.post('/', async function (req, res) {
             });
 
         } else {
-            res.status(403).send("Enter the authentication key again");
+            res.status(400).send("Enter the authentication key again");
         };
     } catch (error) {
         console.error(error);

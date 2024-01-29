@@ -4,6 +4,7 @@ const cors = require('cors');
 const app = express();
 const session = require('express-session');
 const connectDB = require("./Schemas/db");
+const cookieParser = require('cookie-parser');
 const mentor = require('./routes/mentorRouter');
 const notice = require('./routes/noticeRouter');
 const operator = require('./routes/operatorRouter');
@@ -15,6 +16,8 @@ const corsOptions = {
     credentials: true,
     optionsSuccessStatus: 200, // CORS 요청 성공 상태 코드
 };
+
+app.use(cookieParser());
 
 app.use(
     session({
