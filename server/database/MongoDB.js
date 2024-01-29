@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const connection = require('../connection.json');
-const mentorNameModel = require('./MentorsNameSchema');
+const mentorNameModel = require('../Schemas/MentorsNameSchema');
 
 const uri = connection.mongoURL;
 
