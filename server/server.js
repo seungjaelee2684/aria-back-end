@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const session = require('express-session');
-const connectDB = require("./Schemas/db");
+const connectMongoDB = require("./database/MongoDB");
 const cookieParser = require('cookie-parser');
 const mentor = require('./routes/mentorRouter');
 const notice = require('./routes/noticeRouter');
@@ -43,7 +43,7 @@ app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
 app.use('/api/certification', operator);
 
-connectDB();
+connectMongoDB();
 
 app.get("/", (req, res) => {
     res.json({ message: `Server is running on port ${PORT}` });
