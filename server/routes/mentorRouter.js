@@ -63,13 +63,24 @@ router.get('/', async function (req, res) {
         const filterMentorListData = { mentorListData: filterPageMentor };
 
         if (nationstatus === "All") {
-            res.json(mentorListData);
+            res.status(200).json({
+                message: "강사목록 조회 완료!",
+                status: 200,
+                ...mentorListData
+            });
         } else {
-            res.json(filterMentorListData);
+            res.status(200).json({
+                message: "강사목록 조회 완료!",
+                status: 200,
+                ...filterMentorListData
+            });
         }; 
     } catch (error) {
         console.error(error);
-        res.status(403).send('Please set the page and filter settings correctly and try again.');
+        res.status(403).json({
+            message: "Set the page and filter settings correctly and try again.",
+            status: 403
+        });
     };
     
 });
