@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-let db;
 const cookieParser = require('cookie-parser');
 const mentorListData = require('../lib/mentor');
 const Mentor = require('../Schemas/MentorsNameSchema');
@@ -49,16 +48,17 @@ router.post('', async function (req, res) {
 router.get('', async function (req, res) {
     try {
         const mentor_name = await Mentor.find();
+        const mentorOfDates = mentor_name.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         const page = req.query.page;
         const size = req.query.size;
         const nationstatus = req.query.nationstatus;
 
-        const filterMentor = mentor_name?.filter((item) => item?.nation === nationstatus);
+        const filterMentor = mentorOfDates?.filter((item) => item?.nation === nationstatus);
 
         const startIndex = size * (page - 1);
         const endIndex = (size * page) - 1;
         const filterPageMentor = filterMentor.slice(startIndex, endIndex);
-        const pageMentor = mentor_name.slice(startIndex, endIndex);
+        const pageMentor = mentorOfDates.slice(startIndex, endIndex);
 
         const mentorListData = { mentorListData: pageMentor };
         const filterMentorListData = { mentorListData: filterPageMentor };
@@ -70,7 +70,7 @@ router.get('', async function (req, res) {
         }; 
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        res.status(403).send('Please set the page and filter settings correctly and try again.');
     };
     
 });

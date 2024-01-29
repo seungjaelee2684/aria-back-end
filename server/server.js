@@ -6,6 +6,7 @@ const session = require('express-session');
 const connectDB = require("./Schemas/db");
 const mentor = require('./routes/mentorRouter');
 const notice = require('./routes/noticeRouter');
+const operator = require('./routes/operatorRouter');
 
 const PORT = process.env.PORT || 8080;
 
@@ -37,6 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
+app.use('/api/certification', operator);
 
 connectDB();
 
