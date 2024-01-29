@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const cookieParser = require('cookie-parser');
-const mentorListData = require('../lib/mentor');
 const Mentor = require('../Schemas/MentorsNameSchema');
 
 router.use(cookieParser());
 
-router.post('', async function (req, res) {
+router.post('/', async function (req, res) {
     try {
         const mentor_name = await Mentor.find();
         let result = mentor_name;
@@ -45,7 +44,7 @@ router.post('', async function (req, res) {
     };
 });
 
-router.get('', async function (req, res) {
+router.get('/', async function (req, res) {
     try {
         const mentor_name = await Mentor.find();
         const mentorOfDates = mentor_name.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
