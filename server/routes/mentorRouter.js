@@ -11,7 +11,8 @@ router.post('', async function (req, res) {
     try {
         const mentor_name = await Mentor.find();
         let result = mentor_name;
-        const id_data = String(result.length + 1);
+        const id_data = Number(mentor_name[result.length - 1].mentorsId) + 1;
+        const nextId = String(id_data);
         const createdAt = new Date();
 
         const {
@@ -23,7 +24,7 @@ router.post('', async function (req, res) {
         } = req.body;
 
         const mentorsData = {
-            mentorsId: id_data,
+            mentorsId: nextId,
             englishname: englishname,
             chinesename: chinesename,
             japanesename: japanesename,
@@ -52,16 +53,21 @@ router.get('', async function (req, res) {
         const size = req.query.size;
         const nationstatus = req.query.nationstatus;
 
-        const pageData = mentor_name.slice(0, size * page);
+        const filterMentor = mentor_name?.filter((item) => item?.nation === nationstatus);
 
-        const result = {
-            page: page,
-            size: size,
-            nationstatus: nationstatus
-        };
+        const startIndex = size * (page - 1);
+        const endIndex = (size * page) - 1;
+        const filterPageMentor = filterMentor.slice(startIndex, endIndex);
+        const pageMentor = mentor_name.slice(startIndex, endIndex);
 
-        res.json(pageData);
+        const mentorListData = { mentorListData: pageMentor };
+        const filterMentorListData = { mentorListData: filterPageMentor };
 
+        if (nationstatus === "All") {
+            res.json(mentorListData);
+        } else {
+            res.json(filterMentorListData);
+        }; 
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');

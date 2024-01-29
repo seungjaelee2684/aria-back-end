@@ -29,7 +29,8 @@ const addDocument = async () => {
             japanesename: "さんぱち",
             nickname: "산파치",
             nation: "Japan",
-            createdAt: new Date()
+            createdAt: new Date(),
+            updatedAt: new Date()
         });
 
         // MongoDB에 문서 저장

@@ -26,6 +26,11 @@ const mentorsNameSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    nation: {
+        type: String,
+        required: true,
+        trim: true
+    },
     createdAt: {
         type: Date,
         default: Date.now,
