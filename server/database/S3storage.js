@@ -18,12 +18,13 @@ const imageUploader = multer({
         s3: s3,
         bucket: 'ariaacademy',
         key: (req, file, callback) => {
-            const uploadDirectory = req.query.directory ?? ''
-            const extension = path.extname(file.originalname)
-            if (!allowedExtensions.includes(extencion)) {
+            const uploadDirectory = req.query.directory ?? '';
+            const extension = path.extname(file.originalname);
+            const uniqueIdentifier = Date.now();
+            if (!allowedExtensions.includes(extension)) {
                 return callback(new Error('wrong extension'))
             }
-            callback(null, `${uploadDirectory}/${Date.now()}_${file.originalname}`)
+            callback(null, `${uploadDirectory}/${uniqueIdentifier}_${file.originalname}`)
         },
         acl: 'publick-read-write'
     })

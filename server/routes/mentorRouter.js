@@ -1,22 +1,51 @@
 const express = require('express');
 const router = express.Router();
 const Mentor = require('../Schemas/MentorsNameSchema');
+const imageUploader = require('../database/S3storage');
+
+// const mentor_name = Mentor.find();
+// let result = mentor_name;
+// const id_data = Number(mentor_name[result.length - 1].mentorsId) + 1;
+// const nextId = String(id_data);
+
+// const imageUploader = createImageUploader(nextId);
+
+
 
 // 강사 추가 api
-router.post('/', async function (req, res) {
+router.post('/upload', imageUploader.fields([
+    { name: "slideimage", maxCount: 3 },
+    { name: "thumbnail", maxCount: 1 },
+    { name: "curriculum", maxCount: 5 },
+    { name: "portfolio", maxCount: 15 },
+]), async function (req, res) {
     try {
+        const slideImages = req.files['slideimage'].map(file => file.location);
+        const thumbnail = req.files['thumbnail'][0].location;
+        const curriculumImages = req.files['curriculum'].map(file => file.location);
+        const portfolioImages = req.files['portfolio'].map(file => file.location);
+
         const mentor_name = await Mentor.find();
         let result = mentor_name;
         const id_data = Number(mentor_name[result.length - 1].mentorsId) + 1;
         const nextId = String(id_data);
+        
         const createdAt = new Date();
+
+        // const {
+        //     slideImages,
+        //     thumbnail,
+        //     mentorInfoData,
+        //     curriculum,
+        // } = req.body;
 
         const {
             englishname,
             chinesename,
             japanesename,
             nickname,
-            nation
+            nation,
+            SNS
         } = req.body;
 
         const mentorsData = {
@@ -26,6 +55,7 @@ router.post('/', async function (req, res) {
             japanesename: japanesename,
             nickname: nickname,
             nation: nation,
+            SNS: SNS,
             createdAt: createdAt,
             updatedaAt: createdAt
         };

@@ -31,6 +31,41 @@ const mentorsNameSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    SNS: {
+        type: {
+            home: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            youtube: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            twitter: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            instagram: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            artstation: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            pixiv: {
+                type: String,
+                required: false,
+                trim: true
+            },
+        },
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
