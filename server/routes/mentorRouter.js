@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Mentor = require('../Schemas/MentorsNameSchema');
 const imageUploader = require('../database/S3storage');
+const connection = require('../database/MySQL');
 
 // const mentor_name = Mentor.find();
 // let result = mentor_name;
@@ -25,20 +26,6 @@ router.post('/upload', imageUploader.fields([
         const curriculumImages = req.files['curriculum'].map(file => file.location);
         const portfolioImages = req.files['portfolio'].map(file => file.location);
 
-        const mentor_name = await Mentor.find();
-        let result = mentor_name;
-        const id_data = Number(mentor_name[result.length - 1].mentorsId) + 1;
-        const nextId = String(id_data);
-        
-        const createdAt = new Date();
-
-        // const {
-        //     slideImages,
-        //     thumbnail,
-        //     mentorInfoData,
-        //     curriculum,
-        // } = req.body;
-
         const {
             englishname,
             chinesename,
@@ -46,7 +33,12 @@ router.post('/upload', imageUploader.fields([
             nickname,
             nation,
             SNS
-        } = req.body;
+        } = req.body.mentorInfoData;
+
+        connection.query('SELECT * from mentor_table', async (error, rows, fields) => {
+          if (error) throw error;
+          console.log('User info is: ', rows);
+        });
 
         const mentorsData = {
             mentorsId: nextId,
@@ -107,6 +99,7 @@ router.get('/', async function (req, res) {
                 message: "강사목록 조회 완료!",
                 status: 200,
                 isOperator: true,
+                totalNumber: mentor_name.length,
                 ...mentorListData
             });
         } else {
@@ -114,9 +107,10 @@ router.get('/', async function (req, res) {
                 message: "강사목록 조회 완료!",
                 status: 200,
                 isOperator: false,
+                totalNumber: mentor_name.length,
                 ...mentorListData
             });
-        };  
+        };
     } catch (error) {
         console.error(error);
         res.status(403).json({

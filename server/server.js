@@ -4,6 +4,7 @@ const cors = require('cors');
 const app = express();
 const session = require('express-session');
 const connectMongoDB = require("./database/MongoDB");
+const connectMySQL = require('./database/MySQL');
 const cookieParser = require('cookie-parser');
 const mentor = require('./routes/mentorRouter');
 const notice = require('./routes/noticeRouter');
@@ -43,7 +44,8 @@ app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
 app.use('/api/certification', operator);
 
-connectMongoDB();
+connectMySQL.connect();
+// connectMongoDB;
 
 app.get("/", (req, res) => {
     res.json({ message: `Server is running on port ${PORT}` });
