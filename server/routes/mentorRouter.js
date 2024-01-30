@@ -12,16 +12,16 @@ const connection = require('../database/MySQL');
 // const imageUploader = createImageUploader(nextId);
 
 
-
+// imageUploader.fields([
+//     { name: "slideimage", maxCount: 3 },
+//     { name: "thumbnail", maxCount: 1 },
+//     { name: "curriculum", maxCount: 12 },
+//     { name: "portfolio", maxCount: 15 },
+// ]),
 
 
 // 강사 추가 api
-router.post('/upload', imageUploader.fields([
-    { name: "slideimage", maxCount: 3 },
-    { name: "thumbnail", maxCount: 1 },
-    { name: "curriculum", maxCount: 12 },
-    { name: "portfolio", maxCount: 15 },
-]), async function (req, res) {
+router.post('/upload', async function (req, res) {
     try {
         let mentor_id;
         let nowDate = Date.now;
@@ -32,12 +32,12 @@ router.post('/upload', imageUploader.fields([
             LIMIT 1`
         );
 
-        mentor_id = (idSelector.length > 0) ? idSelector[idSelector.length - 1].mentorsId + 1 : 1;
+        mentor_id = (idSelector) ? idSelector[idSelector.length - 1].mentorsId + 1 : 1;
 
-        const slideImages = req.files['slideimage'].map(file => file.location);
-        const thumbnail = req.files['thumbnail'][0].location;
-        const curriculumImages = req.files['curriculum'].map(file => file.location);
-        const portfolioImages = req.files['portfolio'].map(file => file.location);
+        // const slideImages = req.files['slideimage'].map(file => file.location);
+        // const thumbnail = req.files['thumbnail'][0].location;
+        // const curriculumImages = req.files['curriculum'].map(file => file.location);
+        // const portfolioImages = req.files['portfolio'].map(file => file.location);
 
         const {
             englishname,
@@ -57,11 +57,9 @@ router.post('/upload', imageUploader.fields([
 
         connection.query(
             `INSERT INTO SNS_table (mentorsId, home, youtube, twitter, instagram, artstation, pixiv)
-            VALUES (${mentor_id}, ${home}, ${youtube}, ${twitter}, ${instagram}, ${artstation}, ${pixiv})`,
-            async (error, result, fields) => {
-          if (error) console.error(error);
-          console.log('User info is: ', result);
-        });
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [mentor_id, home, youtube, twitter, instagram, artstation, pixiv]
+        );
 
         res.status(200).json({
             message: "업로드 성공!",
