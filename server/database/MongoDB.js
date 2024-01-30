@@ -29,6 +29,14 @@ const addDocument = async () => {
             japanesename: "さんぱち",
             nickname: "산파치",
             nation: "Japan",
+            SNS: {
+                home: null,
+                youtube: null,
+                twitter: "https://twitter.com/hatizyuusan",
+                instagram: null,
+                artstation: null,
+                pixiv: null,
+            },
             createdAt: new Date(),
             updatedAt: new Date()
         });
