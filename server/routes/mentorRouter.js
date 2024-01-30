@@ -13,14 +13,27 @@ const connection = require('../database/MySQL');
 
 
 
+
+
 // 강사 추가 api
 router.post('/upload', imageUploader.fields([
     { name: "slideimage", maxCount: 3 },
     { name: "thumbnail", maxCount: 1 },
-    { name: "curriculum", maxCount: 5 },
+    { name: "curriculum", maxCount: 12 },
     { name: "portfolio", maxCount: 15 },
 ]), async function (req, res) {
     try {
+        let mentor_id;
+        let nowDate = Date.now;
+
+        const idSelector = await connection.query(
+            `SELECT * FROM mentor_table
+            ORDER BY id DESC
+            LIMIT 1`
+        );
+
+        mentor_id = (idSelector.length > 0) ? idSelector[idSelector.length - 1].mentorsId + 1 : 1;
+
         const slideImages = req.files['slideimage'].map(file => file.location);
         const thumbnail = req.files['thumbnail'][0].location;
         const curriculumImages = req.files['curriculum'].map(file => file.location);
@@ -32,32 +45,28 @@ router.post('/upload', imageUploader.fields([
             japanesename,
             nickname,
             nation,
-            SNS
         } = req.body.mentorInfoData;
 
-        connection.query('SELECT * from mentor_table', async (error, rows, fields) => {
-          if (error) throw error;
-          console.log('User info is: ', rows);
+        const { home, youtube, twitter, instagram, artstation, pixiv } = req.body.SNS;
+
+        connection.query(
+            `INSERT INTO mentor_table (mentorsId, englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [mentor_id, englishname, chinesename, japanesename, nickname, nation, nowDate, nowDate]
+        );
+
+        connection.query(
+            `INSERT INTO SNS_table (mentorsId, home, youtube, twitter, instagram, artstation, pixiv)
+            VALUES (${mentor_id}, ${home}, ${youtube}, ${twitter}, ${instagram}, ${artstation}, ${pixiv})`,
+            async (error, result, fields) => {
+          if (error) console.error(error);
+          console.log('User info is: ', result);
         });
 
-        const mentorsData = {
-            mentorsId: nextId,
-            englishname: englishname,
-            chinesename: chinesename,
-            japanesename: japanesename,
-            nickname: nickname,
-            nation: nation,
-            SNS: SNS,
-            createdAt: createdAt,
-            updatedaAt: createdAt
-        };
-
-        const createdMentor = await Mentor.create(mentorsData);
-
-        result.push(mentorsData);
-
-        const mentor = { mentorList: result }
-        res.json(mentor);
+        res.status(200).json({
+            message: "업로드 성공!",
+            status: 200
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
