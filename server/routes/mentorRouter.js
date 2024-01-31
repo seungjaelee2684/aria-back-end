@@ -23,9 +23,14 @@ const connection = require('../database/MySQL');
 // 강사 추가 api
 router.post('/upload', async function (req, res) {
     try {
-        let mentor_id;
-        let nowDate = Date.now;
-
+        const newDate = new Date();
+        const year = newDate.getFullYear();
+        const month = newDate.getMonth() + 1;
+        const day = newDate.getDate();
+        const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
+        
+        console.log(date);
+        
         // const idSelector = await connection.query(
         //     `SELECT * FROM mentor_table
         //     ORDER BY id DESC
@@ -43,19 +48,19 @@ router.post('/upload', async function (req, res) {
 
         const { home, youtube, twitter, instagram, artstation, pixiv } = req.body.SNS;
 
-        connection.query(
-            `INSERT INTO mentor_table (englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [englishname, chinesename, japanesename, nickname, nation, nowDate, nowDate]
-        );
+        // connection.query(
+        //     `INSERT INTO mentor_table (englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
+        //     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        //     [englishname, chinesename, japanesename, nickname, nation, date, date]
+        // );
 
-        connection.query(
-            `INSERT INTO SNS_table (home, youtube, twitter, instagram, artstation, pixiv)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [home, youtube, twitter, instagram, artstation, pixiv]
-        );
+        // connection.query(
+        //     `INSERT INTO SNS_table (home, youtube, twitter, instagram, artstation, pixiv)
+        //     VALUES (?, ?, ?, ?, ?, ?)`,
+        //     [home, youtube, twitter, instagram, artstation, pixiv]
+        // );
 
-        connection.end();
+        // connection.end();
 
         res.status(200).json({
             message: "업로드 성공!",
