@@ -1,5 +1,15 @@
 const dbConfig = require('../app/config/config');
+// const env = require('dotenv');
+require('dotenv').config()
 const mysql = require('mysql2');
+
+// env.config();
+
+const connection = mysql.createConnection(dbConfig)
+console.log('Connected to PlanetScale!')
+connection.end()
+
+module.exports = connection;
 
 // const connection = {
 //   init: function () {
@@ -72,7 +82,3 @@ const mysql = require('mysql2');
 //     console.log('MySQL 연결 종료 성공!');
 //   }
 // });
-
-
-
-module.exports = fetchData;
