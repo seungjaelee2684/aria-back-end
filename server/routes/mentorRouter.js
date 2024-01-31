@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Mentor = require('../Schemas/MentorsNameSchema');
 // const imageUploader = require('../database/S3storage');
-// const connection = require('../database/MySQL');
+const connection = require('../database/MySQL');
 
 // const mentor_name = Mentor.find();
 // let result = mentor_name;
@@ -39,27 +39,23 @@ router.post('/upload', async function (req, res) {
         // const curriculumImages = req.files['curriculum'].map(file => file.location);
         // const portfolioImages = req.files['portfolio'].map(file => file.location);
 
-        const {
-            englishname,
-            chinesename,
-            japanesename,
-            nickname,
-            nation,
-        } = req.body.mentorInfoData;
+        const { englishname, chinesename, japanesename, nickname, nation } = req.body.mentorInfoData;
 
         const { home, youtube, twitter, instagram, artstation, pixiv } = req.body.SNS;
 
-        // connection.query(
-        //     `INSERT INTO mentor_table (mentorsId, englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
-        //     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        //     [mentor_id, englishname, chinesename, japanesename, nickname, nation, nowDate, nowDate]
-        // );
+        connection.query(
+            `INSERT INTO mentor_table (englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [englishname, chinesename, japanesename, nickname, nation, nowDate, nowDate]
+        );
 
-        // connection.query(
-        //     `INSERT INTO SNS_table (mentorsId, home, youtube, twitter, instagram, artstation, pixiv)
-        //     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        //     [mentor_id, home, youtube, twitter, instagram, artstation, pixiv]
-        // );
+        connection.query(
+            `INSERT INTO SNS_table (home, youtube, twitter, instagram, artstation, pixiv)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [home, youtube, twitter, instagram, artstation, pixiv]
+        );
+
+        connection.end();
 
         res.status(200).json({
             message: "업로드 성공!",

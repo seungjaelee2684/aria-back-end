@@ -44,7 +44,7 @@ app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
 app.use('/api/certification', operator);
 
-// connectMySQL.connect();
+connectMySQL.connect();
 // connectMongoDB();
 
 app.get("/", (req, res) => {
