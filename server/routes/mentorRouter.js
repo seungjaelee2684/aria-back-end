@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Mentor = require('../Schemas/MentorsNameSchema');
-const imageUploader = require('../database/S3storage');
+// const imageUploader = require('../database/S3storage');
 // const connection = require('../database/MySQL');
 
 // const mentor_name = Mentor.find();
