@@ -5,9 +5,8 @@ const mysql = require('mysql2');
 
 // env.config();
 
-const connection = mysql.createConnection(dbConfig)
-console.log('Connected to PlanetScale!')
-connection.end()
+const connection = mysql.createConnection(dbConfig);
+console.log('Connected to MySQL!');
 
 module.exports = connection;
 
