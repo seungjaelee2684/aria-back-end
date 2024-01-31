@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const connection = require('../connection.json');
 const mentorNameModel = require('../Schemas/MentorsNameSchema');
+const mentorImgModel = require('../Schemas/MentorsImageSchema');
 
 const uri = connection.mongoURL;
 
@@ -24,11 +25,13 @@ const addDocument = async () => {
         // 새로운 문서 생성
         const newDocument = new mentorNameModel({
             mentorsId: "1",
-            englishname: "Sanpati",
-            chinesename: "圣帕蒂",
-            japanesename: "さんぱち",
-            nickname: "산파치",
-            nation: "Japan",
+            mentorInfoData: {
+                englishname: "Sanpati",
+                chinesename: "圣帕蒂",
+                japanesename: "さんぱち",
+                nickname: "산파치",
+                nation: "Japan"
+            },
             SNS: {
                 home: null,
                 youtube: null,

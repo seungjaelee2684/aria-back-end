@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Mentor = require('../Schemas/MentorsNameSchema');
 const imageUploader = require('../database/S3storage');
-const connection = require('../database/MySQL');
+// const connection = require('../database/MySQL');
 
 // const mentor_name = Mentor.find();
 // let result = mentor_name;
@@ -26,13 +26,13 @@ router.post('/upload', async function (req, res) {
         let mentor_id;
         let nowDate = Date.now;
 
-        const idSelector = await connection.query(
-            `SELECT * FROM mentor_table
-            ORDER BY id DESC
-            LIMIT 1`
-        );
+        // const idSelector = await connection.query(
+        //     `SELECT * FROM mentor_table
+        //     ORDER BY id DESC
+        //     LIMIT 1`
+        // );
 
-        mentor_id = (idSelector) ? idSelector[idSelector.length - 1].mentorsId + 1 : 1;
+        // mentor_id = (idSelector) ? idSelector[idSelector.length - 1].mentorsId + 1 : 1;
 
         // const slideImages = req.files['slideimage'].map(file => file.location);
         // const thumbnail = req.files['thumbnail'][0].location;
@@ -49,17 +49,17 @@ router.post('/upload', async function (req, res) {
 
         const { home, youtube, twitter, instagram, artstation, pixiv } = req.body.SNS;
 
-        connection.query(
-            `INSERT INTO mentor_table (mentorsId, englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [mentor_id, englishname, chinesename, japanesename, nickname, nation, nowDate, nowDate]
-        );
+        // connection.query(
+        //     `INSERT INTO mentor_table (mentorsId, englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
+        //     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        //     [mentor_id, englishname, chinesename, japanesename, nickname, nation, nowDate, nowDate]
+        // );
 
-        connection.query(
-            `INSERT INTO SNS_table (mentorsId, home, youtube, twitter, instagram, artstation, pixiv)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [mentor_id, home, youtube, twitter, instagram, artstation, pixiv]
-        );
+        // connection.query(
+        //     `INSERT INTO SNS_table (mentorsId, home, youtube, twitter, instagram, artstation, pixiv)
+        //     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        //     [mentor_id, home, youtube, twitter, instagram, artstation, pixiv]
+        // );
 
         res.status(200).json({
             message: "업로드 성공!",

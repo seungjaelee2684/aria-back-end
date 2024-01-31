@@ -26,22 +26,22 @@ const mysql = require('mysql2');
 // // 초기화된 connection을 사용하여 연결
 // connection.connect(conn);
 
-async function fetchData() {
-  const connection = await mysql.createConnection(dbConfig);
+// async function fetchData() {
+//   const connection = await mysql.createConnection(dbConfig);
 
-  try {
-    const [rows, fields] = await connection.execute('SELECT * FROM mentor_table');
-    console.log('User info is: ', rows);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    // 연결 닫기
-    connection.end();
-  }
-}
+//   try {
+//     const [rows, fields] = await connection.execute('SELECT * FROM mentor_table');
+//     console.log('User info is: ', rows);
+//   } catch (error) {
+//     console.error(error);
+//   } finally {
+//     // 연결 닫기
+//     connection.end();
+//   }
+// }
 
 // fetchData 함수 호출
-fetchData();
+// fetchData();
 
 
 // connection.connect((err) => {

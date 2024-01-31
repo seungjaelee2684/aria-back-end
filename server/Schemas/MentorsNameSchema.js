@@ -6,30 +6,35 @@ const mentorsNameSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
-    englishname: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    chinesename: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    japanesename: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    nickname: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    nation: {
-        type: String,
-        required: true,
-        trim: true
+    mentorInfoData: {
+        type: {
+            englishname: {
+                type: String,
+                required: true,
+                trim: true,
+            },
+            chinesename: {
+                type: String,
+                required: true,
+                trim: true,
+            },
+            japanesename: {
+                type: String,
+                required: true,
+                trim: true,
+            },
+            nickname: {
+                type: String,
+                required: true,
+                trim: true,
+            },
+            nation: {
+                type: String,
+                required: true,
+                trim: true
+            },
+        },   
+        required: true
     },
     SNS: {
         type: {
