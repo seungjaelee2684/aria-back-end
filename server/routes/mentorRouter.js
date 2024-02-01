@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Mentor = require('../Schemas/MentorsNameSchema');
-// const imageUploader = require('../database/S3storage');
+const imageUploader = require('../database/S3storage');
 const connection = require('../database/MySQL');
 
 // const mentor_name = Mentor.find();
@@ -12,23 +12,35 @@ const connection = require('../database/MySQL');
 // const imageUploader = createImageUploader(nextId);
 
 
-// imageUploader.fields([
-//     { name: "slideimage", maxCount: 3 },
-//     { name: "thumbnail", maxCount: 1 },
-//     { name: "curriculum", maxCount: 12 },
-//     { name: "portfolio", maxCount: 15 },
-// ]),
+
 
 
 // 강사 추가 api
-router.post('/upload', async function (req, res) {
+router.post('/upload', imageUploader.fields([
+    { name: "banner_image", maxCount: 1 },
+    { name: "nickname_image", maxCount: 1 },
+    { name: "thumbnail_image", maxCount: 1 },
+    { name: "curriculum_image", maxCount: 12 },
+    { name: "portfolio_image", maxCount: 15 },
+    { name: "mentorInfoData" },
+    { name: "SNS" }
+]), async function (req, res) {
     try {
+        const {
+            banner_image,
+            nickname_image,
+            thumbnail_image,
+            curriculum_image,
+            portfolio_image
+        } = req.files;
+
         const newDate = new Date();
         const year = newDate.getFullYear();
         const month = newDate.getMonth() + 1;
         const day = newDate.getDate();
         const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
         
+        console.log("image error!!!", banner_image);
         console.log(date);
         
         // const idSelector = await connection.query(
@@ -39,23 +51,49 @@ router.post('/upload', async function (req, res) {
 
         // mentor_id = (idSelector) ? idSelector[idSelector.length - 1].mentorsId + 1 : 1;
 
-        // const slideImages = req.files['slideimage'].map(file => file.location);
-        // const thumbnail = req.files['thumbnail'][0].location;
-        // const curriculumImages = req.files['curriculum'].map(file => file.location);
-        // const portfolioImages = req.files['portfolio'].map(file => file.location);
+        // const bannerImage = banner_image[0].location;
+        // const nicknameImage = nickname_image[0].location;
+        // const thumbnailImage = thumbnail_image[0].location;
+        // const curriculumImages = curriculum_image.map(file => file.location);
+        // const portfolioImages = portfolio_image.map(file => file.location);
 
-        const { englishname, chinesename, japanesename, nickname, nation } = req.body.mentorInfoData;
+        const { englishname, chinesename, japanesename, nickname, nation } = req.body["mentorInfoData"];
 
-        const { home, youtube, twitter, instagram, artstation, pixiv } = req.body.SNS;
+        const { home, youtube, twitter, instagram, artstation, pixiv } = req.body["SNS"];
 
         // connection.query(
-        //     `INSERT INTO mentor_table (englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
+        //     `INSERT INTO banner_image (imageUrl) VALUES (?)`,
+        //     [bannerImage]
+        // );
+
+        // connection.query(
+        //     `INSERT INTO nickname_image (imageUrl) VALUES (?)`,
+        //     [nicknameImage]
+        // );
+
+        // connection.query(
+        //     `INSERT INTO thumbnail_image (imageUrl) VALUES (?)`,
+        //     [thumbnailImage]
+        // );
+
+        // connection.query(
+        //     `INSERT INTO curriculum_image (imageUrl) VALUES (?)`,
+        //     [curriculumImages]
+        // );
+
+        // connection.query(
+        //     `INSERT INTO portfolio_image (imageUrl) VALUES (?)`,
+        //     [portfolioImages]
+        // );
+
+        // connection.query(
+        //     `INSERT INTO mentors (englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
         //     VALUES (?, ?, ?, ?, ?, ?, ?)`,
         //     [englishname, chinesename, japanesename, nickname, nation, date, date]
         // );
 
         // connection.query(
-        //     `INSERT INTO SNS_table (home, youtube, twitter, instagram, artstation, pixiv)
+        //     `INSERT INTO links (home, youtube, twitter, instagram, artstation, pixiv)
         //     VALUES (?, ?, ?, ?, ?, ?)`,
         //     [home, youtube, twitter, instagram, artstation, pixiv]
         // );
