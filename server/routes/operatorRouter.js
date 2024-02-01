@@ -16,19 +16,21 @@ router.post('/', async function (req, res) {
                 type: "JWT",
                 state: "Operator"
             }, SECRET_KEY, {
-                expiresIn: "15m",
+                expiresIn: "30m",
                 issuer: "op"
             });
 
             res.cookie('jwt', token);
             res.status(200).json({
                 status: 200,
-                message: "토큰이 발급되었습니다.",
-                operator: true
+                message: "토큰이 발급되었습니다."
             });
 
         } else {
-            res.status(400).send("Enter the authentication key again");
+            res.status(400).json({
+                status: 400,
+                message: "인증 실패...!!"
+            });
         };
     } catch (error) {
         console.error(error);
