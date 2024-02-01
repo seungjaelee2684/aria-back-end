@@ -22,13 +22,23 @@ router.post('/upload', imageUploader.fields([
     { name: "SNS" }
 ]), async function (req, res) {
     try {
-        const {
-            banner_image,
-            nickname_image,
-            thumbnail_image,
-            curriculum_image,
-            portfolio_image
-        } = req.files;
+        // const {
+        //     banner_image,
+        //     nickname_image,
+        //     thumbnail_image,
+        //     curriculum_image,
+        //     portfolio_image
+        // } = req.files;
+
+        const bannerImage = req.files['banner_image'][0].location;
+        const nicknameImage = req.files['nickname_image'][0].location;
+        const thumbnailImage = req.files['thumbnail_image'][0].location;
+        const curriculumImages = req.files['curriculum_image'].map(file => file.location);
+        const portfolioImages = req.files['portfolio_image'].map(file => file.location);
+
+        const curriculumENG = curriculumImages?.slice(0, 2);
+        const curriculumJPN = curriculumImages?.slice(3, 5);
+        const curriculumKOR = curriculumImages?.slice(6, 8);
 
         const newDate = new Date();
         const year = newDate.getFullYear();
@@ -36,42 +46,38 @@ router.post('/upload', imageUploader.fields([
         const day = newDate.getDate();
         const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
         
-        console.log("image error!!!", banner_image);
+        console.log("bannerImage", bannerImage);
+        console.log("nicknameImage", nicknameImage);
+        console.log("thumbnailImage", thumbnailImage);
+        console.log("curriculumImages", curriculumImages);
+        console.log("portfolioImages", portfolioImages);
+        console.log("curriculumENG", curriculumENG);
+        console.log("curriculumJPN", curriculumJPN);
+        console.log("curriculumKOR", curriculumKOR);
         console.log(date);
-
-        const bannerImage = banner_image[0].location;
-        const nicknameImage = nickname_image[0].location;
-        const thumbnailImage = thumbnail_image[0].location;
-        const curriculumImages = curriculum_image.map(file => file.location);
-        const portfolioImages = portfolio_image.map(file => file.location);
 
         const { englishname, chinesename, japanesename, nickname, nation } = req.body["mentorInfoData"];
 
         const { home, youtube, twitter, instagram, artstation, pixiv } = req.body["SNS"];
 
         // connection.query(
-        //     `INSERT INTO banner_image (imageUrl) VALUES (?)`,
-        //     [bannerImage]
+        //     `INSERT INTO banner_image (imageUrl) VALUES (${bannerImage})`
         // );
 
         // connection.query(
-        //     `INSERT INTO nickname_image (imageUrl) VALUES (?)`,
-        //     [nicknameImage]
+        //     `INSERT INTO nickname_image (imageUrl) VALUES (${nicknameImage})`
         // );
 
         // connection.query(
-        //     `INSERT INTO thumbnail_image (imageUrl) VALUES (?)`,
-        //     [thumbnailImage]
+        //     `INSERT INTO thumbnail_image (imageUrl) VALUES (${thumbnailImage})`
         // );
 
         // connection.query(
-        //     `INSERT INTO curriculum_image (imageUrl) VALUES (?)`,
-        //     [curriculumImages]
+        //     `INSERT INTO curriculum_image (imageUrl) VALUES (${curriculumImages})`
         // );
 
         // connection.query(
-        //     `INSERT INTO portfolio_image (imageUrl) VALUES (?)`,
-        //     [portfolioImages]
+        //     `INSERT INTO portfolio_image (imageUrl) VALUES (${portfolioImages})`
         // );
 
         // connection.query(
@@ -108,7 +114,7 @@ router.get('/', async function (req, res) {
     console.log(token);
 
     try {
-        const mentor_name = await Mentor.find();
+        // const mentor_name = await Mentor.find();
         const mentorOfDates = mentor_name.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         const page = req.query.page;
         const size = req.query.size;
@@ -154,60 +160,65 @@ router.get('/', async function (req, res) {
             status: 403
         });
     };
-    
 });
 
 // 강사 상세조회 api
-router.get('/', async function (req, res) {
+router.get('/:mentorsId', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
     console.log(token);
     
     try {
-        const { mentorsId, nickname } = req.body;
+        const mentorsId = req.params.mentorsId;
+        console.log(mentorsId);
 
-        const mentorcurriculumENG = connection.query(
-            `SELECT imageUrl FROM curriculum_image
-            WHERE mentorsId = ${mentorsId} AND nickname = ${nickname} AND language = ENG`
-        );
+        // const mentorcurriculumENG = connection.query(
+        //     `SELECT imageUrl FROM curriculum_image WHERE mentorsId = ${mentorsId} AND language = ENG`
+        // );
 
-        const mentorcurriculumJPN = connection.query(
-            `SELECT imageUrl FROM curriculum_image
-            WHERE mentorsId = ${mentorsId} AND nickname = ${nickname} AND language = JPN`
-        );
+        // const mentorcurriculumJPN = connection.query(
+        //     `SELECT imageUrl FROM curriculum_image WHERE mentorsId = ${mentorsId} AND language = JPN`
+        // );
 
-        const mentorcurriculumKOR = connection.query(
-            `SELECT imageUrl FROM curriculum_image
-            WHERE mentorsId = ${mentorsId} AND nickname = ${nickname} AND language = KOR`
-        );
+        // const mentorcurriculumKOR = connection.query(
+        //     `SELECT imageUrl FROM curriculum_image WHERE mentorsId = ${mentorsId} AND language = KOR`
+        // );
 
-        const portfolioImage = connection.query(
-            `SELECT imageUrl FROM curriculum_image
-            WHERE mentorsId = ${mentorsId} AND nickname = ${nickname}`
-        );
+        // const portfolioImage = connection.query(
+        //     `SELECT imageUrl FROM curriculum_image WHERE mentorsId = ${mentorsId}`
+        // );
 
-        const mentorData = {
-            mentorsId: mentorsId,
-            nickname: nickname,
-            curriculumENG: mentorcurriculumENG,
-            curriculumJPN: mentorcurriculumJPN,
-            curriculumKOR: mentorcurriculumKOR,
-            portfolio: portfolioImage,
-        };
+        // const nickname = connection.query(
+        //     `SELECT nickname FROM mentors WHERE mentorsId = ${mentorsId}`
+        // );
+
+        // const mentorData = {
+        //     mentorsId: mentorsId,
+        //     nickname: nickname,
+        //     curriculumENG: mentorcurriculumENG,
+        //     curriculumJPN: mentorcurriculumJPN,
+        //     curriculumKOR: mentorcurriculumKOR,
+        //     portfolio: portfolioImage,
+        // };
+
+        // const mentorData = {
+        //     mentorsId: mentorsId,
+        //     name: "캬하하"
+        // };
 
         if (token) {
             res.status(200).json({
                 message: "강사 조회 완료!",
                 status: 200,
                 isOperator: true,
-                mentorDetailData: mentorData
+                // mentorDetailData: mentorData
             });
         } else {
             res.status(200).json({
                 message: "강사 조회 완료!",
                 status: 200,
                 isOperator: false,
-                mentorDetailData: mentorData
+                // mentorDetailData: mentorData
             });
         }; 
     } catch (error) {
@@ -226,33 +237,37 @@ router.get('/banner', async function (req, res) {
     console.log(token);
 
     try {
-        const bannerImage = connection.query(
-            `SELET * FROM banner_image
-            OREDER BY mentorsId DESC
-            LIMIT 6`
-        );
+        // const bannerImage = connection.query(
+        //     `SELET * FROM banner_image
+        //     OREDER BY mentorsId DESC
+        //     LIMIT 6`
+        // );
 
-        const nicknameImage = connection.query(
-            `SELET * FROM nickname_image
-            OREDER BY mentorsId DESC
-            LIMIT 6`
-        );
+        // const nicknameImage = connection.query(
+        //     `SELET * FROM nickname_image
+        //     OREDER BY mentorsId DESC
+        //     LIMIT 6`
+        // );
 
-        const BannerData = { bannerImage: bannerImage, nicknameImage: nicknameImage };
+        // const bannerData = { bannerImage: bannerImage, nicknameImage: nicknameImage };
         
+        const bannerData = {
+            name: "캬하하"
+        }
+
         if (token) {
             res.status(200).json({
                 message: "정보 조회 성공",
                 status: 200,
                 isOperator: true,
-                mentorBannerData: BannerData
+                mentorBannerData: bannerData
             });
         } else {
             res.status(200).json({
                 message: "정보 조회 성공",
                 status: 200,
                 isOperator: false,
-                mentorBannerData: BannerData
+                mentorBannerData: bannerData
             });
         };
 
