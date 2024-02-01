@@ -11,10 +11,6 @@ const connection = require('../database/MySQL');
 
 // const imageUploader = createImageUploader(nextId);
 
-
-
-
-
 // 강사 추가 api
 router.post('/upload', imageUploader.fields([
     { name: "banner_image", maxCount: 1 },
@@ -42,20 +38,12 @@ router.post('/upload', imageUploader.fields([
         
         console.log("image error!!!", banner_image);
         console.log(date);
-        
-        // const idSelector = await connection.query(
-        //     `SELECT * FROM mentor_table
-        //     ORDER BY id DESC
-        //     LIMIT 1`
-        // );
 
-        // mentor_id = (idSelector) ? idSelector[idSelector.length - 1].mentorsId + 1 : 1;
-
-        // const bannerImage = banner_image[0].location;
-        // const nicknameImage = nickname_image[0].location;
-        // const thumbnailImage = thumbnail_image[0].location;
-        // const curriculumImages = curriculum_image.map(file => file.location);
-        // const portfolioImages = portfolio_image.map(file => file.location);
+        const bannerImage = banner_image[0].location;
+        const nicknameImage = nickname_image[0].location;
+        const thumbnailImage = thumbnail_image[0].location;
+        const curriculumImages = curriculum_image.map(file => file.location);
+        const portfolioImages = portfolio_image.map(file => file.location);
 
         const { englishname, chinesename, japanesename, nickname, nation } = req.body["mentorInfoData"];
 
@@ -106,13 +94,15 @@ router.post('/upload', imageUploader.fields([
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        res.status(403).json({
+            message: "업로드 실패...!",
+            status: 403
+        });
     };
 });
 
 // 강사 전체목록 조회 api
 router.get('/', async function (req, res) {
-
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
     console.log(token);
@@ -168,29 +158,56 @@ router.get('/', async function (req, res) {
 });
 
 // 강사 상세조회 api
-router.get('/:mentorsId', async function (req, res) {
+router.get('/', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
     console.log(token);
     
     try {
-        const mentor_name = await Mentor.find();
-        let mentorsId = req.params.mentorsId;
-        const mentorFilterList = mentor_name?.filter((item) => item.mentorsId === mentorsId);
+        const { mentorsId, nickname } = req.body;
+
+        const mentorcurriculumENG = connection.query(
+            `SELECT imageUrl FROM curriculum_image
+            WHERE mentorsId = ${mentorsId} AND nickname = ${nickname} AND language = ENG`
+        );
+
+        const mentorcurriculumJPN = connection.query(
+            `SELECT imageUrl FROM curriculum_image
+            WHERE mentorsId = ${mentorsId} AND nickname = ${nickname} AND language = JPN`
+        );
+
+        const mentorcurriculumKOR = connection.query(
+            `SELECT imageUrl FROM curriculum_image
+            WHERE mentorsId = ${mentorsId} AND nickname = ${nickname} AND language = KOR`
+        );
+
+        const portfolioImage = connection.query(
+            `SELECT imageUrl FROM curriculum_image
+            WHERE mentorsId = ${mentorsId} AND nickname = ${nickname}`
+        );
+
+        const mentorData = {
+            mentorsId: mentorsId,
+            nickname: nickname,
+            curriculumENG: mentorcurriculumENG,
+            curriculumJPN: mentorcurriculumJPN,
+            curriculumKOR: mentorcurriculumKOR,
+            portfolio: portfolioImage,
+        };
 
         if (token) {
             res.status(200).json({
                 message: "강사 조회 완료!",
                 status: 200,
                 isOperator: true,
-                mentorOneData: mentorFilterList[0]
+                mentorDetailData: mentorData
             });
         } else {
             res.status(200).json({
                 message: "강사 조회 완료!",
                 status: 200,
                 isOperator: false,
-                mentorOneData: mentorFilterList[0]
+                mentorDetailData: mentorData
             });
         }; 
     } catch (error) {
@@ -199,6 +216,52 @@ router.get('/:mentorsId', async function (req, res) {
             message: "강사 조회 실패...!",
             status: 403
         });
+    };
+});
+
+// 강사 슬라이드 배너 api
+router.get('/banner', async function (req, res) {
+    const requestCookie = req.headers.cookie;
+    const token = requestCookie.substring(4);
+    console.log(token);
+
+    try {
+        const bannerImage = connection.query(
+            `SELET * FROM banner_image
+            OREDER BY mentorsId DESC
+            LIMIT 6`
+        );
+
+        const nicknameImage = connection.query(
+            `SELET * FROM nickname_image
+            OREDER BY mentorsId DESC
+            LIMIT 6`
+        );
+
+        const BannerData = { bannerImage: bannerImage, nicknameImage: nicknameImage };
+        
+        if (token) {
+            res.status(200).json({
+                message: "정보 조회 성공",
+                status: 200,
+                isOperator: true,
+                mentorBannerData: BannerData
+            });
+        } else {
+            res.status(200).json({
+                message: "정보 조회 성공",
+                status: 200,
+                isOperator: false,
+                mentorBannerData: BannerData
+            });
+        };
+
+    } catch (error) {
+        console.error(error);
+        res.status(403).json({
+            message: "정보 조회 실패...!",
+            status: 403
+        })
     };
 });
 
