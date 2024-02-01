@@ -22,19 +22,22 @@ router.post('/', async function (req, res) {
 
             res.cookie('jwt', token);
             res.status(200).json({
-                status: 200,
-                message: "토큰이 발급되었습니다."
+                message: "토큰이 발급되었습니다.",
+                status: 200
             });
 
         } else {
             res.status(400).json({
-                status: 400,
-                message: "인증 실패...!!"
+                message: "인증 실패...!!",
+                status: 400
             });
         };
     } catch (error) {
         console.error(error);
-        res.status(500).send("No authentication");
+        res.status(500).json({
+            message: "No authentication",
+            status: 500
+        });
     };
 });
 
