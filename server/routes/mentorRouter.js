@@ -21,16 +21,27 @@ router.post('/upload', imageUploader.fields([
     console.log(token);
 
     if (token) {
-        jwt.verify(token, secretKey, (err, decoded) => {
-            if (err) {
-                // 토큰이 유효하지 않은 경우
-                console.error('Invalid token');
-            } else {
-                // 토큰이 유효한 경우
-                console.log('Valid token');
-                console.log(decoded); // 디코딩된 정보
-            }
-        });
+        async function verifyToken (token, secret) {
+            try {
+                const decoded = await jwt.verify(token, secret);
+                console.log("토큰이 유효합니다.");
+                console.log(decoded);
+                res.status(201).json({
+                    message: "토큰이 유효합니다.",
+                    status: 201
+                });
+                return true;
+            } catch (error) {
+                console.error("토큰이 유효하지 않습니다.");
+                res.status(400).json({
+                    message: "토큰이 유효하지 않습니다.",
+                    status: 400
+                });
+                return false;
+            };
+        };
+
+        verifyToken(token, secretKey);
 
         try {
             const bannerImage = req.files['banner_image'][0].location;
