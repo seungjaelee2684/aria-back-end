@@ -3,13 +3,8 @@ const router = express.Router();
 const Mentor = require('../Schemas/MentorsNameSchema');
 const imageUploader = require('../database/S3storage');
 const connection = require('../database/MySQL');
-
-// const mentor_name = Mentor.find();
-// let result = mentor_name;
-// const id_data = Number(mentor_name[result.length - 1].mentorsId) + 1;
-// const nextId = String(id_data);
-
-// const imageUploader = createImageUploader(nextId);
+const jwt = require('jsonwebtoken');
+const secretKey = require('../app/config/jwt');
 
 // 강사 추가 api
 router.post('/upload', imageUploader.fields([
@@ -26,23 +21,34 @@ router.post('/upload', imageUploader.fields([
     console.log(token);
 
     if (token) {
+        jwt.verify(token, secretKey, (err, decoded) => {
+            if (err) {
+                // 토큰이 유효하지 않은 경우
+                console.error('Invalid token');
+            } else {
+                // 토큰이 유효한 경우
+                console.log('Valid token');
+                console.log(decoded); // 디코딩된 정보
+            }
+        });
+
         try {
             const bannerImage = req.files['banner_image'][0].location;
             const nicknameImage = req.files['nickname_image'][0].location;
             const thumbnailImage = req.files['thumbnail_image'][0].location;
             const curriculumImages = req.files['curriculum_image'].map(file => file.location);
             const portfolioImages = req.files['portfolio_image'].map(file => file.location);
-    
+
             const curriculumENG = curriculumImages?.slice(0, 2);
             const curriculumJPN = curriculumImages?.slice(3, 5);
             const curriculumKOR = curriculumImages?.slice(6, 8);
-    
+
             const newDate = new Date();
             const year = newDate.getFullYear();
             const month = newDate.getMonth() + 1;
             const day = newDate.getDate();
             const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
-            
+
             console.log("bannerImage", bannerImage);
             console.log("nicknameImage", nicknameImage);
             console.log("thumbnailImage", thumbnailImage);
@@ -52,45 +58,45 @@ router.post('/upload', imageUploader.fields([
             console.log("curriculumJPN", curriculumJPN);
             console.log("curriculumKOR", curriculumKOR);
             console.log(date);
-    
+
             const { englishname, chinesename, japanesename, nickname, nation } = req.body["mentorInfoData"];
-    
+
             const { home, youtube, twitter, instagram, artstation, pixiv } = req.body["SNS"];
-    
+
             // connection.query(
             //     `INSERT INTO banner_image (imageUrl) VALUES (${bannerImage})`
             // );
-    
+
             // connection.query(
             //     `INSERT INTO nickname_image (imageUrl) VALUES (${nicknameImage})`
             // );
-    
+
             // connection.query(
             //     `INSERT INTO thumbnail_image (imageUrl) VALUES (${thumbnailImage})`
             // );
-    
+
             // connection.query(
             //     `INSERT INTO curriculum_image (imageUrl) VALUES (${curriculumImages})`
             // );
-    
+
             // connection.query(
             //     `INSERT INTO portfolio_image (imageUrl) VALUES (${portfolioImages})`
             // );
-    
+
             // connection.query(
             //     `INSERT INTO mentors (englishname, chinesename, japanesename, nickname, nation, createdAt, updatedAt)
             //     VALUES (?, ?, ?, ?, ?, ?, ?)`,
             //     [englishname, chinesename, japanesename, nickname, nation, date, date]
             // );
-    
+
             // connection.query(
             //     `INSERT INTO links (home, youtube, twitter, instagram, artstation, pixiv)
             //     VALUES (?, ?, ?, ?, ?, ?)`,
             //     [home, youtube, twitter, instagram, artstation, pixiv]
             // );
-    
+
             // connection.end();
-    
+
             res.status(200).json({
                 message: "업로드 성공!",
                 status: 200
@@ -170,7 +176,7 @@ router.get('/:mentorsId', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
     console.log(token);
-    
+
     try {
         const mentorsId = req.params.mentorsId;
         console.log(mentorsId);
@@ -223,7 +229,7 @@ router.get('/:mentorsId', async function (req, res) {
                 isOperator: false,
                 // mentorDetailData: mentorData
             });
-        }; 
+        };
     } catch (error) {
         console.error(error);
         res.status(403).json({
@@ -253,7 +259,7 @@ router.get('/banner', async function (req, res) {
         // );
 
         // const bannerData = { bannerImage: bannerImage, nicknameImage: nicknameImage };
-        
+
         const bannerData = {
             name: "캬하하"
         }
