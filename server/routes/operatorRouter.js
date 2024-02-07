@@ -16,7 +16,7 @@ router.post('/', async function (req, res) {
                 type: "JWT",
                 state: "Operator"
             }, SECRET_KEY, {
-                expiresIn: "30m",
+                expiresIn: "1h",
                 issuer: "op"
             });
 
