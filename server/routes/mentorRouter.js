@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Mentor = require('../Schemas/MentorsNameSchema');
 const imageUploader = require('../database/S3storage');
 const connection = require('../database/MySQL');
 const jwt = require('jsonwebtoken');
@@ -20,9 +19,7 @@ router.post('/upload', imageUploader.fields([
     const token = requestCookie.substring(4);
     console.log(token);
 
-    const { englishname, chinesename, japanesename, nickname, nation, opendate } = req.body["mentorInfoData"];
-    const { home, youtube, twitter, instagram, artstation, pixiv } = req.body["SNS"];
-
+    console.log(req.body["mentorInfoData"], req.body["SNS"]);
     if (token) {
         async function verifyToken (token, secret) {
             try {
@@ -32,7 +29,7 @@ router.post('/upload', imageUploader.fields([
                 return false;
             };
         };
-        console.log(englishname, chinesename, twitter);
+
         verifyToken(token, secretKey)
             .then((isTokenValid) => {
                 if (isTokenValid) {
@@ -43,6 +40,9 @@ router.post('/upload', imageUploader.fields([
                         const curriculumImages = req.files['curriculum_image'].map(file => file.location);
                         const portfolioImages = req.files['portfolio_image'].map(file => file.location);
             
+                        const { englishname, chinesename, japanesename, nickname, nation, opendate } = JSON.parse(req.body["mentorInfoData"]);
+                        const { home, youtube, twitter, instagram, artstation, pixiv } = JSON.parse(req.body["SNS"]);
+
                         const newDate = new Date();
                         const year = newDate.getFullYear();
                         const month = newDate.getMonth() + 1;
