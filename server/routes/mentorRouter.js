@@ -9,52 +9,95 @@ const secretKey = require('../app/config/jwt');
 router.get('/', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
-    const page = req.query.page;
-    const size = req.query.size;
+    const page = parseInt(req.query.page);
+    const size = parseInt(req.query.size);
     const nationstatus = req.query.nationstatus;
-    const startIndex = size * (page - 1);
-    const endIndex = (size * page) - 1;
+    const startIndex = parseInt(size * (page - 1));
     console.log(token);
 
+    
+
     try {
-        const mentorInfo = connection.query(
-            `SELECT * FROM mentors ORDER BY mentorsId DESC LIMIT ${startIndex}, ${size}`,
+        let mentorInfo;
+        let mentorNationFilter;
+        let total;
+        connection.query(
+            `SELECT * FROM mentors
+            ORDER BY mentorsId DESC
+            LIMIT ?, ?;`,
+            [startIndex, size],
             async function (error, results, fields) {
                 if (error) throw error;
-                console.log("Inserted successfully", results);
+                mentorInfo = results;
             }
         );
-        // const mentorOfDates = mentorInfo.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        
-        const filterMentor = mentorOfDates?.filter((item) => {
-            if (nationstatus === "All") {
-                return item
-            } else {
-                return item?.nation === nationstatus
+
+        connection.query(
+            `SELECT * FROM mentors
+            WHERE nation = ?
+            ORDER BY mentorsId DESC
+            LIMIT ?, ?;`,
+            [nationstatus, startIndex, size],
+            async function (error, results, fields) {
+                if (error) throw error;
+                mentorNationFilter = results;
             }
-        });
+        );
 
-        
-        // const filterPageMentor = filterMentor.slice(startIndex, endIndex)
-        const pageMentor = filterMentor.slice(startIndex, endIndex);
+        connection.query(
+            `SELECT COUNT(*) AS total_rows FROM mentors;`,
+            async function (error, results, fields) {
+                if (error) throw error;
+                total = results;
+                console.log(total);
+            }
+        );
 
-        const mentorListData = { mentorListData: pageMentor };
-        // const filterMentorListData = { mentorListData: filterPageMentor };
+        const mentorListData = { mentorListData: (nationstatus === "All") ? mentorInfo : mentorNationFilter};
 
         if (token) {
-            res.status(200).json({
-                message: "강사목록 조회 완료!",
-                status: 200,
-                isOperator: true,
-                totalNumber: mentor_name.length,
-                ...mentorListData
-            });
+            async function verifyToken (token, secret) {
+                try {
+                    const decoded = await jwt.verify(token, secret);
+                    return true;
+                } catch (error) {
+                    return false;
+                };
+            };
+
+            verifyToken(token, secretKey)
+                .then((isTokenValid) => {
+                    if (isTokenValid) {
+                        res.status(200).json({
+                            message: "강사목록 조회 완료!",
+                            status: 200,
+                            isOperator: true,
+                            totalNumber: total,
+                            ...mentorListData
+                        });
+                    } else {
+                        res.status(200).json({
+                            message: "강사목록 조회 완료!",
+                            status: 200,
+                            isOperator: false,
+                            totalNumber: total,
+                            ...mentorListData
+                        });
+                    };
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.status(500).json({
+                        message: "서버 오류...!",
+                        status: 500
+                    });
+                });
         } else {
             res.status(200).json({
                 message: "강사목록 조회 완료!",
                 status: 200,
                 isOperator: false,
-                totalNumber: mentor_name.length,
+                totalNumber: total,
                 ...mentorListData
             });
         };
