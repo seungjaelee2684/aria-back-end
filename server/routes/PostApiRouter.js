@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const secretKey = require('../app/config/jwt');
 
 // 강사 추가 api
-router.post('api/mentors/upload', imageUploader.fields([
+router.post('/mentors/upload', imageUploader.fields([
     { name: "banner_image", maxCount: 1 },
     { name: "nickname_image", maxCount: 1 },
     { name: "thumbnail_image", maxCount: 1 },
@@ -180,3 +180,5 @@ router.post('api/mentors/upload', imageUploader.fields([
         });
     };
 });
+
+module.exports = router;
