@@ -6,6 +6,7 @@ const session = require('express-session');
 const connectMongoDB = require("./database/MongoDB");
 const connectMySQL = require('./database/MySQL');
 const cookieParser = require('cookie-parser');
+const post = require('./routes/PostApiRouter');
 const mentor = require('./routes/mentorRouter');
 const notice = require('./routes/noticeRouter');
 const operator = require('./routes/operatorRouter');
@@ -40,6 +41,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/', post);
 app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
 app.use('/api/certification', operator);
