@@ -12,7 +12,7 @@ router.post('/', async function (req, res) {
         if (password === authenticationKey) {
 
             // jwt.sign(payload, secretOrPrivateKey, [options, callback])
-            const token = jwt.sign({
+            const jwtToken = jwt.sign({
                 type: "JWT",
                 state: "Operator"
             }, SECRET_KEY, {
@@ -20,7 +20,7 @@ router.post('/', async function (req, res) {
                 issuer: "op"
             });
 
-            res.cookie('jwt', token);
+            res.cookie('jwt', jwtToken);
             res.status(200).json({
                 message: "토큰이 발급되었습니다.",
                 status: 200
