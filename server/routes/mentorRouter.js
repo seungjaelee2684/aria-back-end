@@ -9,15 +9,23 @@ const secretKey = require('../app/config/jwt');
 router.get('/', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
+    const page = req.query.page;
+    const size = req.query.size;
+    const nationstatus = req.query.nationstatus;
+    const startIndex = size * (page - 1);
+    const endIndex = (size * page) - 1;
     console.log(token);
 
     try {
-        // const mentor_name = await Mentor.find();
-        const mentorOfDates = mentor_name.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        const page = req.query.page;
-        const size = req.query.size;
-        const nationstatus = req.query.nationstatus;
-
+        const mentorInfo = connection.query(
+            `SELECT * FROM mentors ORDER BY mentorsId DESC LIMIT ${startIndex}, ${size}`,
+            async function (error, results, fields) {
+                if (error) throw error;
+                console.log("Inserted successfully", results);
+            }
+        );
+        // const mentorOfDates = mentorInfo.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        
         const filterMentor = mentorOfDates?.filter((item) => {
             if (nationstatus === "All") {
                 return item
@@ -26,8 +34,7 @@ router.get('/', async function (req, res) {
             }
         });
 
-        const startIndex = size * (page - 1);
-        const endIndex = (size * page) - 1;
+        
         // const filterPageMentor = filterMentor.slice(startIndex, endIndex)
         const pageMentor = filterMentor.slice(startIndex, endIndex);
 
