@@ -13,45 +13,44 @@ router.get('/', async function (req, res) {
     const size = parseInt(req.query.size);
     const nationstatus = req.query.nationstatus;
     const startIndex = parseInt(size * (page - 1));
-    console.log(token);
-
-    
 
     try {
-        let mentorInfo;
-        let mentorNationFilter;
-        let total;
-        connection.query(
-            `SELECT * FROM mentors
-            ORDER BY mentorsId DESC
-            LIMIT ?, ?;`,
-            [startIndex, size],
-            async function (error, results, fields) {
-                if (error) throw error;
-                mentorInfo = results;
-            }
-        );
+        const mentorInfo = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT * FROM mentors
+                ORDER BY mentorsId DESC
+                LIMIT ?, ?;`,
+                [startIndex, size],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            )
+        });
 
-        connection.query(
-            `SELECT * FROM mentors
-            WHERE nation = ?
-            ORDER BY mentorsId DESC
-            LIMIT ?, ?;`,
-            [nationstatus, startIndex, size],
-            async function (error, results, fields) {
-                if (error) throw error;
-                mentorNationFilter = results;
-            }
-        );
+        const mentorNationFilter = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT * FROM mentors
+                WHERE nation = ?
+                ORDER BY mentorsId DESC
+                LIMIT ?, ?;`,
+                [nationstatus, startIndex, size],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
 
-        connection.query(
-            `SELECT COUNT(*) AS total_rows FROM mentors;`,
-            async function (error, results, fields) {
-                if (error) throw error;
-                total = results;
-                console.log(total);
-            }
-        );
+        const total = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT COUNT(*) AS total_rows FROM mentors;`,
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
 
         const mentorListData = { mentorListData: (nationstatus === "All") ? mentorInfo : mentorNationFilter};
 
@@ -72,7 +71,7 @@ router.get('/', async function (req, res) {
                             message: "강사목록 조회 완료!",
                             status: 200,
                             isOperator: true,
-                            totalNumber: total,
+                            totalNumber: total[0].total_rows,
                             ...mentorListData
                         });
                     } else {
@@ -80,7 +79,7 @@ router.get('/', async function (req, res) {
                             message: "강사목록 조회 완료!",
                             status: 200,
                             isOperator: false,
-                            totalNumber: total,
+                            totalNumber: total[0].total_rows,
                             ...mentorListData
                         });
                     };
@@ -97,7 +96,7 @@ router.get('/', async function (req, res) {
                 message: "강사목록 조회 완료!",
                 status: 200,
                 isOperator: false,
-                totalNumber: total,
+                totalNumber: total[0].total_rows,
                 ...mentorListData
             });
         };
