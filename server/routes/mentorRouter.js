@@ -13,33 +13,33 @@ router.get('/', async function (req, res) {
     const size = parseInt(req.query.size);
     const nationstatus = req.query.nationstatus;
     const startIndex = parseInt(size * (page - 1));
+    const newDate = new Date();
+    const year = newDate.getFullYear();
+    const month = newDate.getMonth() + 1;
+    const day = newDate.getDate();
+    const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
 
     try {
         const mentorInfo = await new Promise((resolve, reject) => {
             connection.query(
-                `SELECT * FROM mentors
-                ORDER BY mentorsId DESC
-                LIMIT ?, ?;`,
-                [startIndex, size],
+                `${(nationstatus === "All")
+                    ? `SELECT mentors.*, thumbnail_image.imageUrl
+                        FROM mentors
+                        INNER JOIN thumbnail_image ON mentors.mentorsId = thumbnail_image.mentorsId
+                        ORDER BY mentors.mentorsId DESC
+                        LIMIT ?, ?;`
+                    : `SELECT mentors.*, thumbnail_image.imageUrl
+                        FROM mentors
+                        INNER JOIN thumbnail_image ON mentors.mentorsId = thumbnail_image.mentorsId
+                        WHERE mentors.nation = ?
+                        ORDER BY mentors.mentorsId DESC
+                        LIMIT ?, ?;`}`,
+                (nationstatus === "All") ? [startIndex, size] : [nationstatus, startIndex, size],
                 async function (error, results, fields) {
                     if (error) throw error;
                     resolve(results);
                 }
             )
-        });
-
-        const mentorNationFilter = await new Promise((resolve, reject) => {
-            connection.query(
-                `SELECT * FROM mentors
-                WHERE nation = ?
-                ORDER BY mentorsId DESC
-                LIMIT ?, ?;`,
-                [nationstatus, startIndex, size],
-                async function (error, results, fields) {
-                    if (error) throw error;
-                    resolve(results);
-                }
-            );
         });
 
         const total = await new Promise((resolve, reject) => {
@@ -52,7 +52,16 @@ router.get('/', async function (req, res) {
             );
         });
 
-        const mentorListData = { mentorListData: (nationstatus === "All") ? mentorInfo : mentorNationFilter};
+        const mentorData = mentorInfo.map((item) => {
+            const targetDate = new Date(item?.opendate);
+            if (newDate >= targetDate) {
+                return {...item, isopen: true};
+            } else {
+                return {...item, isopen: false};
+            };
+        });
+
+        const mentorListData = { mentorListData: mentorData };
 
         if (token) {
             async function verifyToken (token, secret) {
@@ -113,59 +122,93 @@ router.get('/', async function (req, res) {
 router.get('/:mentorsId', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
-    console.log(token);
+    const mentorsId = req.params.mentorsId;
+    console.log(mentorsId);
 
     try {
-        const mentorsId = req.params.mentorsId;
-        console.log(mentorsId);
+        const curriculum = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT imageUrl, languageData
+                FROM curriculum_image
+                WHERE mentorsId = ?;`,
+                [mentorsId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
 
-        // const mentorcurriculumENG = connection.query(
-        //     `SELECT imageUrl FROM curriculum_image WHERE mentorsId = ${mentorsId} AND language = ENG`
-        // );
+        const portfolio = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT imageUrl FROM portfolio_image
+                WHERE mentorsId = ?;`,
+                [mentorsId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
 
-        // const mentorcurriculumJPN = connection.query(
-        //     `SELECT imageUrl FROM curriculum_image WHERE mentorsId = ${mentorsId} AND language = JPN`
-        // );
+        const imageENG = curriculum.filter((item) => item.languageData === "ENG").map((item) => item.imageUrl);
+        const imageJPN = curriculum.filter((item) => item.languageData === "JPN").map((item) => item.imageUrl);
+        const imageKOR = curriculum.filter((item) => item.languageData === "KOR").map((item) => item.imageUrl);
+        const portfolioImages = portfolio.map((item) => item.imageUrl);
 
-        // const mentorcurriculumKOR = connection.query(
-        //     `SELECT imageUrl FROM curriculum_image WHERE mentorsId = ${mentorsId} AND language = KOR`
-        // );
-
-        // const portfolioImage = connection.query(
-        //     `SELECT imageUrl FROM curriculum_image WHERE mentorsId = ${mentorsId}`
-        // );
-
-        // const nickname = connection.query(
-        //     `SELECT nickname FROM mentors WHERE mentorsId = ${mentorsId}`
-        // );
-
-        // const mentorData = {
-        //     mentorsId: mentorsId,
-        //     nickname: nickname,
-        //     curriculumENG: mentorcurriculumENG,
-        //     curriculumJPN: mentorcurriculumJPN,
-        //     curriculumKOR: mentorcurriculumKOR,
-        //     portfolio: portfolioImage,
-        // };
-
-        // const mentorData = {
-        //     mentorsId: mentorsId,
-        //     name: "캬하하"
-        // };
+        const mentorDetailData = {
+            mentorsId: mentorsId,
+            mentorDetailData: {
+                mentorCurriculum: {
+                    ENG: imageENG,
+                    JPN: imageJPN,
+                    KOR: imageKOR
+                },
+                mentorPortfolio: portfolioImages
+            }
+        };
 
         if (token) {
-            res.status(200).json({
-                message: "강사 조회 완료!",
-                status: 200,
-                isOperator: true,
-                // mentorDetailData: mentorData
-            });
+            async function verifyToken (token, secret) {
+                try {
+                    const decoded = await jwt.verify(token, secret);
+                    return true;
+                } catch (error) {
+                    return false;
+                };
+            };
+
+            verifyToken(token, secretKey)
+                .then((isTokenValid) => {
+                    if (isTokenValid) {
+                        res.status(200).json({
+                            message: "강사 조회 완료!",
+                            status: 200,
+                            isOperator: true,
+                            ...mentorDetailData
+                        });
+                    } else {
+                        res.status(200).json({
+                            message: "강사 조회 완료!",
+                            status: 200,
+                            isOperator: false,
+                            ...mentorDetailData
+                        });
+                    };
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.status(500).json({
+                        message: "서버 오류...!",
+                        status: 500
+                    });
+                });
         } else {
             res.status(200).json({
                 message: "강사 조회 완료!",
                 status: 200,
                 isOperator: false,
-                // mentorDetailData: mentorData
+                ...mentorDetailData
             });
         };
     } catch (error) {
