@@ -14,10 +14,6 @@ router.get('/', async function (req, res) {
     const nationstatus = req.query.nationstatus;
     const startIndex = parseInt(size * (page - 1));
     const newDate = new Date();
-    const year = newDate.getFullYear();
-    const month = newDate.getMonth() + 1;
-    const day = newDate.getDate();
-    const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
 
     try {
         const mentorInfo = await new Promise((resolve, reject) => {
@@ -123,7 +119,6 @@ router.get('/:mentorsId', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
     const mentorsId = req.params.mentorsId;
-    console.log(mentorsId);
 
     try {
         const curriculum = await new Promise((resolve, reject) => {
@@ -217,56 +212,6 @@ router.get('/:mentorsId', async function (req, res) {
             message: "강사 조회 실패...!",
             status: 403
         });
-    };
-});
-
-// 강사 슬라이드 배너 api
-router.get('/banner', async function (req, res) {
-    const requestCookie = req.headers.cookie;
-    const token = requestCookie.substring(4);
-    console.log(token);
-
-    try {
-        // const bannerImage = connection.query(
-        //     `SELET * FROM banner_image
-        //     OREDER BY mentorsId DESC
-        //     LIMIT 6`
-        // );
-
-        // const nicknameImage = connection.query(
-        //     `SELET * FROM nickname_image
-        //     OREDER BY mentorsId DESC
-        //     LIMIT 6`
-        // );
-
-        // const bannerData = { bannerImage: bannerImage, nicknameImage: nicknameImage };
-
-        const bannerData = {
-            name: "캬하하"
-        }
-
-        if (token) {
-            res.status(200).json({
-                message: "정보 조회 성공",
-                status: 200,
-                isOperator: true,
-                mentorBannerData: bannerData
-            });
-        } else {
-            res.status(200).json({
-                message: "정보 조회 성공",
-                status: 200,
-                isOperator: false,
-                mentorBannerData: bannerData
-            });
-        };
-
-    } catch (error) {
-        console.error(error);
-        res.status(403).json({
-            message: "정보 조회 실패...!",
-            status: 403
-        })
     };
 });
 
