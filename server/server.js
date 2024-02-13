@@ -22,12 +22,17 @@ const corsOptions = {
 
 app.use(cookieParser());
 
+const expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 app.use(
     session({
+        name: 'session',
         resave: false, // 세션이 변경되지 않은 경우에도 다시 저장할지
         saveUninitialized: true, // 초기화되지 않은 세션 저장할지
         secret: "Aria", // 세션 암호화 키
         cookie: {
+            // domain: 'example.com',
+            // path: 'foo/bar',
+            expires: expiryDate,
             httpOnly: true, // JavaScript에서 쿠키 접근을 방지할지
             secure: true // 보안 연결(HTTPS)을 사용하지 않을 시 세션 쿠키 전송을 막을지
         }
@@ -55,6 +60,7 @@ app.get("/", (req, res) => {
     res.json({ message: `Server is running on port ${PORT}` });
 });
 
+// 서버 열기
 app.listen(PORT, function () {
     console.log(`Listening on port ${PORT}`)
-}); // 서버 열기
+});
