@@ -19,14 +19,16 @@ router.get('/', async function (req, res) {
         const mentorInfo = await new Promise((resolve, reject) => {
             connection.query(
                 `${(nationstatus === "All")
-                    ? `SELECT mentors.*, thumbnail_image.imageUrl
+                    ? `SELECT mentors.*, thumbnail_image.imageUrl, links.twitter
                         FROM mentors
                         INNER JOIN thumbnail_image ON mentors.mentorsId = thumbnail_image.mentorsId
+                        INNER JOIN links ON mentors.mentorsId = links.mentorsId
                         ORDER BY mentors.mentorsId DESC
                         LIMIT ?, ?;`
-                    : `SELECT mentors.*, thumbnail_image.imageUrl
+                    : `SELECT mentors.*, thumbnail_image.imageUrl, links.twitter
                         FROM mentors
                         INNER JOIN thumbnail_image ON mentors.mentorsId = thumbnail_image.mentorsId
+                        INNER JOIN links ON mentors.mentorsId = links.mentorsId
                         WHERE mentors.nation = ?
                         ORDER BY mentors.mentorsId DESC
                         LIMIT ?, ?;`}`,
@@ -134,6 +136,19 @@ router.get('/:mentorsId', async function (req, res) {
             );
         });
 
+        const link = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT home, youtube, twitter, instagram, artstation, pixiv
+                FROM links
+                WHERE mentorsId = ?;`,
+                [mentorsId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
         const portfolio = await new Promise((resolve, reject) => {
             connection.query(
                 `SELECT imageUrl FROM portfolio_image
@@ -159,6 +174,7 @@ router.get('/:mentorsId', async function (req, res) {
                     JPN: imageJPN,
                     KOR: imageKOR
                 },
+                links: link,
                 mentorPortfolio: portfolioImages
             }
         };
