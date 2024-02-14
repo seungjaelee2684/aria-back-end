@@ -11,6 +11,7 @@ const mentor = require('./routes/mentorRouter');
 const notice = require('./routes/noticeRouter');
 const operator = require('./routes/operatorRouter');
 const banner = require('./routes/bannerRouter');
+const update = require('./routes/updateRouter');
 
 const PORT = process.env.PORT || 8080;
 
@@ -52,6 +53,7 @@ app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
 app.use('/api/certification', operator);
 app.use('/api/banners', banner);
+app.use('/update', update);
 
 connectMySQL.connect();
 // connectMongoDB();
