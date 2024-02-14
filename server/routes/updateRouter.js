@@ -5,34 +5,23 @@ const connection = require('../database/MySQL');
 const jwt = require('jsonwebtoken');
 const secretKey = require('../app/config/jwt');
 
-// 강사 슬라이드 배너 api
-router.get('/mentors', async function (req, res) {
+// 강사 정보수정 api
+router.get('/update/mentor/:mentorsId', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie.substring(4);
-    const newDate = new Date();
+    const mentorsId = req.params.mentorsId;
 
     try {
-        const banner = await new Promise((resolve, reject) => {
+        const mentorInformation = await new Promise((resolve, reject) => {
             connection.query(
-                `SELECT mentors.mentorsId, mentors.nickname, mentors.opendate, banner_image.imageUrl AS bannerImageUrl, nickname_image.imageUrl AS nicknameImageUrl
-                FROM mentors
-                INNER JOIN banner_image ON mentors.mentorsId = banner_image.mentorsId
-                INNER JOIN nickname_image ON mentors.mentorsId = nickname_image.mentorsId
-                ORDER BY mentors.mentorsId DESC
-                LIMIT 5;`,
+                ``,
+                [],
                 async function (error, results, fields) {
                     if (error) throw error;
                     resolve(results);
                 }
             );
         });
-
-        const isOpenMentor = banner.filter((item) => {
-            const targetDate = new Date(item.opendate);
-            return newDate >= targetDate;
-        });
-
-        const bannerData = { bannerData: isOpenMentor }
 
         if (token) {
             async function verifyToken (token, secret) {
@@ -48,17 +37,15 @@ router.get('/mentors', async function (req, res) {
                 .then((isTokenValid) => {
                     if (isTokenValid) {
                         res.status(200).json({
-                            message: "정보 조회 성공",
+                            message: "강사 정보 조회 성공!",
                             status: 200,
                             isOperator: true,
-                            ...bannerData
                         });
                     } else {
                         res.status(200).json({
-                            message: "정보 조회 성공",
+                            message: "강사 정보 조회 성공!",
                             status: 200,
                             isOperator: false,
-                            ...bannerData
                         });
                     };
                 })
@@ -71,20 +58,16 @@ router.get('/mentors', async function (req, res) {
                 });
         } else {
             res.status(200).json({
-                message: "정보 조회 성공",
+                message: "강사 정보 조회 성공!",
                 status: 200,
                 isOperator: false,
-                ...bannerData
             });
         };
-
     } catch (error) {
         console.error(error);
         res.status(403).json({
-            message: "정보 조회 실패...!",
+            message: "강사 정보 조회 실패...!",
             status: 403
-        })
+        });
     };
 });
-
-module.exports = router;
