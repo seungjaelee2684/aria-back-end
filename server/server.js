@@ -53,7 +53,7 @@ app.use('/api/mentors', mentor);
 app.use('/api/notice', notice);
 app.use('/api/certification', operator);
 app.use('/api/banners', banner);
-app.use('/update', update);
+app.use('/api/update', update);
 
 connectMySQL.connect();
 // connectMongoDB();
