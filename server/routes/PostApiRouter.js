@@ -16,12 +16,12 @@ router.post('/mentors/upload', imageUploader.fields([
     { name: "SNS" }
 ]), async function (req, res) {
     const requestCookie = req.headers.cookie;
-    const token = requestCookie.substring(4);
+    const token = requestCookie?.substring(4);
     console.log(token);
 
     console.log(req.body["mentorInfoData"], req.body["SNS"]);
     if (token) {
-        async function verifyToken (token, secret) {
+        async function verifyToken(token, secret) {
             try {
                 const decoded = await jwt.verify(token, secret);
                 return true;
@@ -39,7 +39,7 @@ router.post('/mentors/upload', imageUploader.fields([
                         const thumbnailImage = req.files['thumbnail_image'][0].location;
                         const curriculumImages = req.files['curriculum_image'].map(file => file.location);
                         const portfolioImages = req.files['portfolio_image'].map(file => file.location);
-            
+
                         const { englishname, chinesename, japanesename, nickname, nation, opendate } = JSON.parse(req.body["mentorInfoData"]);
                         const { home, youtube, twitter, instagram, artstation, pixiv } = JSON.parse(req.body["SNS"]);
 
@@ -54,7 +54,7 @@ router.post('/mentors/upload', imageUploader.fields([
                         const curriculumKOR = curriculumImages.filter((image) => image.includes("KOR"));
 
                         console.log(curriculumENG, curriculumJPN, curriculumKOR);
-                        
+
                         connection.query(
                             `INSERT INTO mentors (englishname, chinesename, japanesename, nickname, nation, opendate, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
                             [englishname, chinesename, japanesename, nickname, nation, opendate, date, date],
@@ -72,7 +72,7 @@ router.post('/mentors/upload', imageUploader.fields([
                                         console.log("Inserted successfully");
                                     }
                                 );
-        
+
                                 connection.query(
                                     `INSERT INTO banner_image (mentorsId, imageUrl) VALUES (?, ?);`,
                                     [mentorsId, bannerImage],
@@ -81,7 +81,7 @@ router.post('/mentors/upload', imageUploader.fields([
                                         console.log("Inserted successfully");
                                     }
                                 );
-                    
+
                                 connection.query(
                                     `INSERT INTO nickname_image (mentorsId, imageUrl) VALUES (?, ?);`,
                                     [mentorsId, nicknameImage],
@@ -90,7 +90,7 @@ router.post('/mentors/upload', imageUploader.fields([
                                         console.log("Inserted successfully");
                                     }
                                 );
-                    
+
                                 connection.query(
                                     `INSERT INTO thumbnail_image (mentorsId, imageUrl) VALUES (?, ?);`,
                                     [mentorsId, thumbnailImage],
@@ -121,7 +121,7 @@ router.post('/mentors/upload', imageUploader.fields([
                                         }
                                     );
                                 });
-        
+
                                 curriculumKOR.forEach((imageUrl) => {
                                     connection.query(
                                         `INSERT INTO curriculum_image (mentorsId, imageUrl, languageData) VALUES (?, ?, ?);`,
@@ -132,7 +132,7 @@ router.post('/mentors/upload', imageUploader.fields([
                                         }
                                     );
                                 });
-        
+
                                 portfolioImages.forEach((imageUrl) => {
                                     connection.query(
                                         `INSERT INTO portfolio_image (mentorsId, imageUrl) VALUES (?, ?);`,
@@ -142,12 +142,12 @@ router.post('/mentors/upload', imageUploader.fields([
                                             console.log("Inserted successfully");
                                         }
                                     );
-                                });  
+                                });
                             }
                         );
 
                         // connection.end();
-            
+
                         res.status(200).json({
                             message: "업로드 성공!",
                             status: 200
@@ -159,6 +159,186 @@ router.post('/mentors/upload', imageUploader.fields([
                             status: 403
                         });
                     };
+                } else {
+                    res.status(400).json({
+                        message: "토큰 인증 실패...!",
+                        status: 400
+                    });
+                };
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).json({
+                    message: "서버 오류...!",
+                    status: 500
+                });
+            });
+    } else {
+        res.status(400).json({
+            message: "토큰 인증 실패...!",
+            status: 400
+        });
+    };
+});
+
+router.post('/mentors/update/:mentorsId', imageUploader.fields([
+    { name: "banner_image", maxCount: 1 },
+    { name: "nickname_image", maxCount: 1 },
+    { name: "thumbnail_image", maxCount: 1 },
+    { name: "curriculum_image", maxCount: 12 },
+    { name: "portfolio_image", maxCount: 15 },
+    { name: "mentorInfoData" },
+    { name: "SNS" }
+]), async function (req, res) {
+    const requestCookie = req.headers.cookie;
+    const token = requestCookie?.substring(4);
+    const mentorsId = req.params.mentorsId;
+    console.log(token);
+
+    if (token) {
+        async function verifyToken(token, secret) {
+            try {
+                const decoded = await jwt.verify(token, secret);
+                return true;
+            } catch (error) {
+                return false;
+            };
+        };
+
+        verifyToken(token, secretKey)
+            .then((isTokenValid) => {
+                if (isTokenValid) {
+                    try {
+                        const bannerImage = req.files['banner_image'][0].location;
+                        const nicknameImage = req.files['nickname_image'][0].location;
+                        const thumbnailImage = req.files['thumbnail_image'][0].location;
+                        const curriculumImages = req.files['curriculum_image'].map(file => file.location);
+                        const portfolioImages = req.files['portfolio_image'].map(file => file.location);
+
+                        const { englishname, chinesename, japanesename, nickname, nation, opendate } = JSON.parse(req.body["mentorInfoData"]);
+                        const { home, youtube, twitter, instagram, artstation, pixiv } = JSON.parse(req.body["SNS"]);
+
+                        const newDate = new Date();
+                        const year = newDate.getFullYear();
+                        const month = newDate.getMonth() + 1;
+                        const day = newDate.getDate();
+                        const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
+
+                        const curriculumENG = curriculumImages.filter((image) => image.includes("ENG"));
+                        const curriculumJPN = curriculumImages.filter((image) => image.includes("JPN"));
+                        const curriculumKOR = curriculumImages.filter((image) => image.includes("KOR"));
+
+                        console.log(curriculumENG, curriculumJPN, curriculumKOR);
+
+                        connection.query(
+                            `UPDATE mentors
+                            SET englishname = ?, chinesename = ?, japanesename = ?, nickname = ?, nation = ?, opendate = ?, updatedAt = ?)
+                            WHERE mentorsId = ?;`,
+                            [englishname, chinesename, japanesename, nickname, nation, opendate, date, mentorsId],
+                            async function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        connection.query(
+                            `UPDATE links
+                            SET home = ?, youtube = ?, twitter = ?, instagram = ?, artstation = ?, pixiv = ?
+                            WHERE mentorsId = ?;`,
+                            [home, youtube, twitter, instagram, artstation, pixiv, mentorsId],
+                            function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        connection.query(
+                            `UPDATE banner_image
+                            SET imageUrl = ?
+                            WHERE mentorsId = ?;`,
+                            [bannerImage, mentorsId],
+                            function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        connection.query(
+                            `UPDATE nickname_image
+                            SET imageUrl = ?
+                            WHERE mentorsId?;`,
+                            [nicknameImage, mentorsId],
+                            function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        connection.query(
+                            `UPDATE thumbnail_image
+                            SET imageUrl = ?
+                            WHERE mentorsId = ?;`,
+                            [thumbnailImage, mentorsId],
+                            function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        connection.query(
+                            `UPDATE curriculum_image
+                            SET imageUrl = ?
+                            WHERE mentorsId = ? AND languageData = ?;`,
+                            [curriculumENG, mentorsId, "ENG"],
+                            function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        connection.query(
+                            `UPDATE curriculum_image
+                            SET imageUrl = ?
+                            WHERE mentorsId = ? AND languageData = ?;`,
+                            [curriculumJPN, mentorsId, "JPN"],
+                            function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        connection.query(
+                            `UPDATE curriculum_image
+                            SET imageUrl = ?
+                            WHERE mentorsId = ? AND languageData = ?;`,
+                            [curriculumKOR, mentorsId, "KOR"],
+                            function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        connection.query(
+                            `UPDATE portfolio_image
+                            SET imageUrl = ?
+                            WHERE mentorsId = ?;`,
+                            [portfolioImages, mentorsId],
+                            function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+                            }
+                        );
+
+                        res.status(200).json({
+                            message: "업로드 성공!",
+                            status: 200
+                        });
+                    } catch (error) {
+                        res.status(403).json({
+                            message: "업로드 실패...!",
+                            status: 403
+                        });
+                    }
                 } else {
                     res.status(400).json({
                         message: "토큰 인증 실패...!",

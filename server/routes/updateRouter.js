@@ -5,7 +5,7 @@ const connection = require('../database/MySQL');
 const jwt = require('jsonwebtoken');
 const secretKey = require('../app/config/jwt');
 
-// 강사 정보수정 api
+// 강사 정보조회 api
 router.get('/mentor/:mentorsId', async function (req, res) {
     const requestCookie = req.headers.cookie;
     const token = requestCookie?.substring(4);
@@ -14,8 +14,9 @@ router.get('/mentor/:mentorsId', async function (req, res) {
     try {
         const mentorInformation = await new Promise((resolve, reject) => {
             connection.query(
-                `SELECT mentors.*, banner_image.imageUrl AS bannerImage, nickname_image.imageUrl AS nicknameImage, thumbnail_image.imageUrl AS thumbnailImage
+                `SELECT mentors.*, links.*, banner_image.imageUrl AS bannerImage, nickname_image.imageUrl AS nicknameImage, thumbnail_image.imageUrl AS thumbnailImage
                 FROM mentors
+                INNER JOIN links ON mentors.mentorsId = links.mentorsId
                 INNER JOIN banner_image ON mentors.mentorsId = banner_image.mentorsId
                 INNER JOIN nickname_image ON mentors.mentorsId = nickname_image.mentorsId
                 INNER JOIN thumbnail_image ON mentors.mentorsId = thumbnail_image.mentorsId
