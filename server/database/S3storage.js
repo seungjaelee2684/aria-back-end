@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const path = require('path');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, HeadObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
 
 AWS.config.update({
     region: 'ap-northeast-2',
@@ -20,14 +20,29 @@ const imageUploader = multer({
         acl: 'public-read-write',
         bucket: 'ariaacademy',
         contentType: multerS3.AUTO_CONTENT_TYPE,
-        key: (req, file, callback) => {
+        key: async (req, file, callback) => {
             const uploadDirectory = req.query.directory ?? '';
             const extension = path.extname(file.originalname);
             const uniqueIdentifier = Date.now();
             if (!allowedExtensions.includes(extension)) {
                 return callback(new Error('wrong extension'))
             }
-            callback(null, `${uploadDirectory}/${uniqueIdentifier}_${file.originalname}`)
+
+            const headParams = {
+                bucket: 'ariaacademy',
+                key: `${uploadDirectory}/${uniqueIdentifier}_${file.originalname}`
+            }
+
+            try {
+                await s3Client.send(new HeadObjectCommand(headParams));
+                return callback(new Error('file already exists'));
+            } catch (err) {
+                if (err.code === 'NotFound') {
+                    callback(null, `${uploadDirectory}/${uniqueIdentifier}_${file.originalname}`)
+                } else {
+                    callback(err);
+                }
+            }
         },
     })
 });
