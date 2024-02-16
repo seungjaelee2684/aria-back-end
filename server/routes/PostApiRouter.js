@@ -146,8 +146,6 @@ router.post('/mentors/upload', imageUploader.fields([
                             }
                         );
 
-                        // connection.end();
-
                         res.status(200).json({
                             message: "업로드 성공!",
                             status: 200
