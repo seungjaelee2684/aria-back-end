@@ -4,6 +4,15 @@ const imageUploader = require('../database/S3storage');
 const connection = require('../database/MySQL');
 const jwt = require('jsonwebtoken');
 const secretKey = require('../app/config/jwt');
+const AWS = require('aws-sdk');
+
+// AWS 계정 자격 증명 설정
+const credentials = new AWS.SharedIniFileCredentials({ profile: 'your_profile_name' }); // 또는 AWS 설정을 통해 직접 설정
+AWS.config.credentials = credentials;
+
+// AWS SDK 설정
+const s3 = new AWS.S3();
+const BucketName = 'your_bucket_name'; // S3 버킷 이름
 
 // 강사 추가 api
 router.post('/mentors/upload', imageUploader.fields([
@@ -207,13 +216,13 @@ router.post('/mentors/update/:mentorsId', imageUploader.fields([
             .then((isTokenValid) => {
                 if (isTokenValid) {
                     try {
-                        const bannerImage = req.files['banner_image'][0].location;
-                        const nicknameImage = req.files['nickname_image'][0].location;
-                        const thumbnailImage = req.files['thumbnail_image'][0].location;
-                        const curriculumImages = req.files['curriculum_image'].map(file => file.location);
-                        const portfolioImages = req.files['portfolio_image'].map(file => file.location);
+                        const bannerImage = req.files['banner_image'] ? req.files['banner_image'][0]?.location : null;
+                        const nicknameImage = req.files['nickname_image'] ? req.files['nickname_image'][0]?.location : null;
+                        const thumbnailImage = req.files['thumbnail_image'] ? req.files['thumbnail_image'][0]?.location : null;
+                        const curriculumImages = req.files['curriculum_image'] ? req.files['curriculum_image']?.map(file => file.location) : [null];
+                        const portfolioImages = req.files['portfolio_image'] ? req.files['portfolio_image']?.map(file => file.location) : [null];
 
-                        const { englishname, chinesename, japanesename, nickname, nation, opendate } = JSON.parse(req.body["mentorInfoData"]);
+                        const { englishname, japanesename, nickname, nation, opendate } = JSON.parse(req.body["mentorInfoData"]);
                         const { home, youtube, twitter, instagram, artstation, pixiv } = JSON.parse(req.body["SNS"]);
 
                         const newDate = new Date();
@@ -222,17 +231,17 @@ router.post('/mentors/update/:mentorsId', imageUploader.fields([
                         const day = newDate.getDate();
                         const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
 
-                        const curriculumENG = curriculumImages.filter((image) => image.includes("ENG"));
-                        const curriculumJPN = curriculumImages.filter((image) => image.includes("JPN"));
-                        const curriculumKOR = curriculumImages.filter((image) => image.includes("KOR"));
+                        const curriculumENG = curriculumImages[0] ? curriculumImages.filter((image) => image.includes("ENG")) : null;
+                        const curriculumJPN = curriculumImages[0] ? curriculumImages.filter((image) => image.includes("JPN")) : null;
+                        const curriculumKOR = curriculumImages[0] ? curriculumImages.filter((image) => image.includes("KOR")) : null;
 
                         console.log(curriculumENG, curriculumJPN, curriculumKOR);
 
                         connection.query(
                             `UPDATE mentors
-                            SET englishname = ?, chinesename = ?, japanesename = ?, nickname = ?, nation = ?, opendate = ?, updatedAt = ?)
+                            SET englishname = ?, japanesename = ?, nickname = ?, nation = ?, opendate = ?, updatedAt = ?
                             WHERE mentorsId = ?;`,
-                            [englishname, chinesename, japanesename, nickname, nation, opendate, date, mentorsId],
+                            [englishname, japanesename, nickname, nation, opendate, date, mentorsId],
                             async function (error, results, fields) {
                                 if (error) throw error;
                                 console.log("Inserted successfully");
@@ -250,82 +259,141 @@ router.post('/mentors/update/:mentorsId', imageUploader.fields([
                             }
                         );
 
-                        connection.query(
-                            `UPDATE banner_image
-                            SET imageUrl = ?
-                            WHERE mentorsId = ?;`,
-                            [bannerImage, mentorsId],
-                            function (error, results, fields) {
-                                if (error) throw error;
-                                console.log("Inserted successfully");
-                            }
-                        );
+                        if (bannerImage) {
+                            connection.query(
+                                `UPDATE banner_image
+                                SET imageUrl = ?
+                                WHERE mentorsId = ?;`,
+                                [bannerImage, mentorsId],
+                                function (error, results, fields) {
+                                    if (error) throw error;
+                                    console.log("Inserted successfully");
+                                }
+                            );
+                        } else {
+                            console.log("bannerImage 값이 없습니다.");
+                        };
 
-                        connection.query(
-                            `UPDATE nickname_image
-                            SET imageUrl = ?
-                            WHERE mentorsId?;`,
-                            [nicknameImage, mentorsId],
-                            function (error, results, fields) {
-                                if (error) throw error;
-                                console.log("Inserted successfully");
-                            }
-                        );
+                        if (nicknameImage) {
+                            connection.query(
+                                `UPDATE nickname_image
+                                SET imageUrl = ?
+                                WHERE mentorsId?;`,
+                                [nicknameImage, mentorsId],
+                                function (error, results, fields) {
+                                    if (error) throw error;
+                                    console.log("Inserted successfully");
+                                }
+                            );
+                        } else {
+                            console.log("nicknameImage 값이 없습니다.");
+                        };
 
-                        connection.query(
-                            `UPDATE thumbnail_image
-                            SET imageUrl = ?
-                            WHERE mentorsId = ?;`,
-                            [thumbnailImage, mentorsId],
-                            function (error, results, fields) {
-                                if (error) throw error;
-                                console.log("Inserted successfully");
-                            }
-                        );
+                        if (thumbnailImage) {
+                            connection.query(
+                                `UPDATE thumbnail_image
+                                SET imageUrl = ?
+                                WHERE mentorsId = ?;`,
+                                [thumbnailImage, mentorsId],
+                                function (error, results, fields) {
+                                    if (error) throw error;
+                                    console.log("Inserted successfully");
+                                }
+                            );
+                        } else {
+                            console.log("thumbnailImage 값이 없습니다.");
+                        };
 
-                        connection.query(
-                            `UPDATE curriculum_image
-                            SET imageUrl = ?
-                            WHERE mentorsId = ? AND languageData = ?;`,
-                            [curriculumENG, mentorsId, "ENG"],
-                            function (error, results, fields) {
-                                if (error) throw error;
-                                console.log("Inserted successfully");
-                            }
-                        );
+                        if (curriculumENG) {
+                            connection.query(
+                                `DELETE curriculum_image_ENG WHERE mentorsId = ?;`,
+                                [mentorsId],
+                                function (error, results, fields) {
+                                    if (error) throw error;
+                                }
+                            );
+                            curriculumENG.forEach((url) => {
+                                connection.query(
+                                    `INSERT INTO curriculum_image_ENG (mentorsId, imageUrl) VALUES (?, ?);`,
+                                    [mentorsId, url],
+                                    function (error, results, fields) {
+                                        if (error) throw error;
+                                    }
+                                );
+                            });
+                            
+                        } else {
+                            console.log("curriculumENG 값이 없습니다.");
+                        };
 
-                        connection.query(
-                            `UPDATE curriculum_image
-                            SET imageUrl = ?
-                            WHERE mentorsId = ? AND languageData = ?;`,
-                            [curriculumJPN, mentorsId, "JPN"],
-                            function (error, results, fields) {
-                                if (error) throw error;
-                                console.log("Inserted successfully");
-                            }
-                        );
+                        if (curriculumJPN) {
+                            connection.query(
+                                `DELETE curriculum_image_JPN WHERE mentorsId = ?;`,
+                                [mentorsId],
+                                function (error, results, fields) {
+                                    if (error) throw error;
+                                }
+                            );
 
-                        connection.query(
-                            `UPDATE curriculum_image
-                            SET imageUrl = ?
-                            WHERE mentorsId = ? AND languageData = ?;`,
-                            [curriculumKOR, mentorsId, "KOR"],
-                            function (error, results, fields) {
-                                if (error) throw error;
-                                console.log("Inserted successfully");
-                            }
-                        );
+                            curriculumJPN.forEach((url) => {
+                                connection.query(
+                                    `INSERT INTO curriculum_image_JPN (mentorsId, imageUrl) VALUES (?, ?);`,
+                                    [mentorsId, url],
+                                    function (error, results, fields) {
+                                        if (error) throw error;
+                                    }
+                                );
+                            });
+                        } else {
+                            console.log("curriculumJPN 값이 없습니다.");
+                        };
 
-                        connection.query(
-                            `UPDATE portfolio_image
-                            SET imageUrl = ?
-                            WHERE mentorsId = ?;`,
-                            [portfolioImages, mentorsId],
-                            function (error, results, fields) {
-                                if (error) throw error;
-                                console.log("Inserted successfully");
-                            }
-                        );
+                        if (curriculumKOR) {
+                            connection.query(
+                                `DELETE curriculum_image_KOR WHERE mentorsId = ?;`,
+                                [mentorsId],
+                                function (error, results, fields) {
+                                    if (error) throw error;
+                                }
+                            );
+                            
+                            curriculumKOR.forEach((url) => {
+                                connection.query(
+                                    `INSERT INTO curriculum_image_KOR (mentorsId, imageUrl) VALUES (?, ?)`,
+                                    [mentorsId, url],
+                                    function (error, results, fields) {
+                                        if (error) throw error;
+                                        console.log("Inserted successfully");
+                                    }
+                                );
+                            });
+                            
+                        } else {
+                            console.log("curriculumKOR 값이 없습니다.");
+                        };
+
+                        if (portfolioImages[0]) {
+                            connection.query(
+                                `DELETE portfolio_image WHERE mentorsId = ?;`,
+                                [mentorsId],
+                                function (error, results, fields) {
+                                    if (error) throw error;
+                                }
+                            );
+
+                            portfolioImages.forEach((url) => {
+                                connection.query(
+                                    `INSERT INTO portfolio_image (mentorsId, imageUrl) VALUES (?, ?);`,
+                                    [mentorsId, url],
+                                    function (error, results, fields) {
+                                        if (error) throw error;
+                                    }
+                                );
+                            });
+                            
+                        } else {
+                            console.log("portfolioImages 값이 없습니다.");
+                        };
 
                         res.status(200).json({
                             message: "업로드 성공!",

@@ -25,7 +25,7 @@ router.get('/', async function (req, res) {
                         INNER JOIN links ON mentors.mentorsId = links.mentorsId
                         ORDER BY mentors.mentorsId DESC
                         LIMIT ?, ?;`
-                    : `SELECT mentors.*, thumbnail_image.imageUrl, links.twitter
+                    : `SELECT mentors.*, thumbnail_image.imageUrl AS thumbnailImage, links.twitter
                         FROM mentors
                         INNER JOIN thumbnail_image ON mentors.mentorsId = thumbnail_image.mentorsId
                         INNER JOIN links ON mentors.mentorsId = links.mentorsId
