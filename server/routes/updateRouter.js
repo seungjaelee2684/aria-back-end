@@ -14,13 +14,36 @@ router.get('/mentor/:mentorsId', async function (req, res) {
     try {
         const mentorInformation = await new Promise((resolve, reject) => {
             connection.query(
-                `SELECT mentors.*, links.*, banner_image.imageUrl AS bannerImage, nickname_image.imageUrl AS nicknameImage, thumbnail_image.imageUrl AS thumbnailImage
-                FROM mentors
-                INNER JOIN links ON mentors.mentorsId = links.mentorsId
-                INNER JOIN banner_image ON mentors.mentorsId = banner_image.mentorsId
-                INNER JOIN nickname_image ON mentors.mentorsId = nickname_image.mentorsId
-                INNER JOIN thumbnail_image ON mentors.mentorsId = thumbnail_image.mentorsId
-                WHERE mentors.mentorsId = ?;`,
+                `SELECT * FROM mentors
+                WHERE mentorsId = ?;`,
+                [mentorsId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
+        const socialLink = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT home, youtube, twitter, instagram, artstation, pixiv
+                FROM links
+                WHERE mentorsId = ?`,
+                [mentorsId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
+        const mentorSingleImage = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT banner_image.imageUrl AS bannerImage, nickname_image.imageUrl AS nicknameImage, thumbnail_image.imageUrl AS thumbnailImage
+                FROM banner_image
+                INNER JOIN nickname_image ON banner_image.mentorsId = nickname_image.mentorsId
+                INNER JOIN thumbnail_image ON banner_image.mentorsId = thumbnail_image.mentorsId
+                WHERE banner_image.mentorsId = ?;`,
                 [mentorsId],
                 async function (error, results, fields) {
                     if (error) throw error;
@@ -55,7 +78,13 @@ router.get('/mentor/:mentorsId', async function (req, res) {
             );
         });
 
-        const mentorInfoData = { mentorInformation, mentorCurriculum, mentorPortfolio };
+        const mentorSingle = mentorSingleImage[0];
+
+        const mentorInfoData = {
+            mentorInfomation: mentorInformation[0],
+            snsLinks: socialLink[0],
+            mentorImage: { mentorSingle, mentorCurriculum, mentorPortfolio }
+        };
 
         if (token) {
             async function verifyToken (token, secret) {
