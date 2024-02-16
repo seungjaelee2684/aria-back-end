@@ -123,10 +123,36 @@ router.get('/:mentorsId', async function (req, res) {
     const mentorsId = req.params.mentorsId;
 
     try {
-        const curriculum = await new Promise((resolve, reject) => {
+        const curriculumENG = await new Promise((resolve, reject) => {
             connection.query(
-                `SELECT imageUrl, languageData
-                FROM curriculum_image
+                `SELECT imageUrl
+                FROM curriculum_image_ENG
+                WHERE mentorsId = ?;`,
+                [mentorsId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
+        const curriculumJPN = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT imageUrl
+                FROM curriculum_image_JPN
+                WHERE mentorsId = ?;`,
+                [mentorsId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
+        const curriculumKOR = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT imageUrl
+                FROM curriculum_image_KOR
                 WHERE mentorsId = ?;`,
                 [mentorsId],
                 async function (error, results, fields) {
@@ -161,9 +187,9 @@ router.get('/:mentorsId', async function (req, res) {
             );
         });
 
-        const imageENG = curriculum.filter((item) => item.languageData === "ENG").map((item) => item.imageUrl);
-        const imageJPN = curriculum.filter((item) => item.languageData === "JPN").map((item) => item.imageUrl);
-        const imageKOR = curriculum.filter((item) => item.languageData === "KOR").map((item) => item.imageUrl);
+        // const imageENG = curriculum.filter((item) => item.languageData === "ENG").map((item) => item.imageUrl);
+        // const imageJPN = curriculum.filter((item) => item.languageData === "JPN").map((item) => item.imageUrl);
+        // const imageKOR = curriculum.filter((item) => item.languageData === "KOR").map((item) => item.imageUrl);
         const linkData = Object.keys(link[0]).map((key) => ({link: link[0][key]}));
         const portfolioImages = portfolio.map((img) => img.imageUrl);
 
@@ -171,9 +197,9 @@ router.get('/:mentorsId', async function (req, res) {
             mentorsId: mentorsId,
             mentorDetailData: {
                 mentorCurriculum: {
-                    ENG: imageENG,
-                    JPN: imageJPN,
-                    KOR: imageKOR
+                    ENG: curriculumENG,
+                    JPN: curriculumJPN,
+                    KOR: curriculumKOR
                 },
                 links: linkData,
                 mentorPortfolio: portfolioImages

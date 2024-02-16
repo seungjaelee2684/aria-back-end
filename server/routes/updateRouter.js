@@ -55,8 +55,14 @@ router.get('/mentor/:mentorsId', async function (req, res) {
         const mentorCurriculum = await new Promise((resolve, reject) => {
             connection.query(
                 `SELECT imageUrl
-                FROM curriculum_image
-                WHERE mentorsId = ?;`,
+                FROM (
+                    SELECT mentorsId, imageUrl FROM curriculum_image_ENG
+                    UNION
+                    SELECT mentorsId, imageUrl FROM curriculum_image_JPN
+                    UNION
+                    SELECT mentorsId, imageUrl FROM curriculum_image_KOR
+                ) AS combined_images
+                WHERE combined_images.mentorsId = ?;`,
                 [mentorsId],
                 async function (error, results, fields) {
                     if (error) throw error;
@@ -80,10 +86,22 @@ router.get('/mentor/:mentorsId', async function (req, res) {
 
         const mentorSingle = mentorSingleImage[0];
 
+        const curriculumENG = mentorCurriculum?.filter((item) => item.imageUrl.includes("ENG"));
+        const curriculumJPN = mentorCurriculum?.filter((item) => item.imageUrl.includes("JPN"));
+        const curriculumKOR = mentorCurriculum?.filter((item) => item.imageUrl.includes("KOR"));
+
         const mentorInfoData = {
             mentorInfomation: mentorInformation[0],
             snsLinks: socialLink[0],
-            mentorImage: { mentorSingle, mentorCurriculum, mentorPortfolio }
+            mentorImage: {
+                mentorSingle,
+                mentorCurriculum: {
+                    curriculumENG: curriculumENG,
+                    curriculumJPN: curriculumJPN,
+                    curriculumKOR: curriculumKOR
+                },
+                mentorPortfolio
+            }
         };
 
         if (token) {
