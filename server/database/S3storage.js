@@ -27,22 +27,7 @@ const imageUploader = multer({
             if (!allowedExtensions.includes(extension)) {
                 return callback(new Error('wrong extension'))
             }
-
-            const headParams = {
-                bucket: 'ariaacademy',
-                key: `${uploadDirectory}/${uniqueIdentifier}_${file.originalname}`
-            }
-
-            try {
-                await s3Client.send(new HeadObjectCommand(headParams));
-                return callback(new Error('file already exists'));
-            } catch (err) {
-                if (err.code === 'NotFound') {
-                    callback(null, `${uploadDirectory}/${uniqueIdentifier}_${file.originalname}`)
-                } else {
-                    callback(err);
-                }
-            }
+            callback(null, `${uploadDirectory}/${uniqueIdentifier}_${file.originalname}`)
         },
     })
 });

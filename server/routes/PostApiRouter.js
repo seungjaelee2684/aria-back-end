@@ -34,13 +34,13 @@ router.post('/mentors/upload', imageUploader.fields([
             .then((isTokenValid) => {
                 if (isTokenValid) {
                     try {
-                        const bannerImage = req.files['banner_image'][0].location;
-                        const nicknameImage = req.files['nickname_image'][0].location;
-                        const thumbnailImage = req.files['thumbnail_image'][0].location;
-                        const curriculumImages = req.files['curriculum_image'].map(file => file.location);
-                        const portfolioImages = req.files['portfolio_image'].map(file => file.location);
+                        const bannerImage = req.files['banner_image'] ? req.files['banner_image'][0]?.location : null;
+                        const nicknameImage = req.files['nickname_image'] ? req.files['nickname_image'][0]?.location : null;
+                        const thumbnailImage = req.files['thumbnail_image'] ? req.files['thumbnail_image'][0]?.location : null;
+                        const curriculumImages = req.files['curriculum_image'] ? req.files['curriculum_image']?.map(file => file.location) : [null];
+                        const portfolioImages = req.files['portfolio_image'] ? req.files['portfolio_image']?.map(file => file.location) : [null];
 
-                        const { englishname, chinesename, japanesename, nickname, nation, opendate } = JSON.parse(req.body["mentorInfoData"]);
+                        const { englishname, japanesename, nickname, nation, opendate } = JSON.parse(req.body["mentorInfoData"]);
                         const { home, youtube, twitter, instagram, artstation, pixiv } = JSON.parse(req.body["SNS"]);
 
                         const newDate = new Date();
@@ -49,15 +49,15 @@ router.post('/mentors/upload', imageUploader.fields([
                         const day = newDate.getDate();
                         const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
 
-                        const curriculumENG = curriculumImages.filter((image) => image.includes("ENG"));
-                        const curriculumJPN = curriculumImages.filter((image) => image.includes("JPN"));
-                        const curriculumKOR = curriculumImages.filter((image) => image.includes("KOR"));
+                        const curriculumENG = curriculumImages[0] ? curriculumImages.filter((image) => image.includes("ENG")) : [null];
+                        const curriculumJPN = curriculumImages[0] ? curriculumImages.filter((image) => image.includes("JPN")) : [null];
+                        const curriculumKOR = curriculumImages[0] ? curriculumImages.filter((image) => image.includes("KOR")) : [null];
 
                         console.log(curriculumENG, curriculumJPN, curriculumKOR);
 
                         connection.query(
-                            `INSERT INTO mentors (englishname, chinesename, japanesename, nickname, nation, opendate, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
-                            [englishname, chinesename, japanesename, nickname, nation, opendate, date, date],
+                            `INSERT INTO mentors (englishname, japanesename, nickname, nation, opendate, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+                            [englishname, japanesename, nickname, nation, opendate, date, date],
                             async function (error, results, fields) {
                                 if (error) throw error;
                                 console.log("Inserted successfully");
@@ -102,8 +102,8 @@ router.post('/mentors/upload', imageUploader.fields([
 
                                 curriculumENG.forEach((imageUrl) => {
                                     connection.query(
-                                        `INSERT INTO curriculum_image (mentorsId, imageUrl, languageData) VALUES (?, ?, ?);`,
-                                        [mentorsId, imageUrl, "ENG"],
+                                        `INSERT INTO curriculum_image_ENG (mentorsId, imageUrl) VALUES (?, ?);`,
+                                        [mentorsId, imageUrl],
                                         function (error, results, fields) {
                                             if (error) throw error;
                                             console.log("Inserted successfully");
@@ -113,8 +113,8 @@ router.post('/mentors/upload', imageUploader.fields([
 
                                 curriculumJPN.forEach((imageUrl) => {
                                     connection.query(
-                                        `INSERT INTO curriculum_image (mentorsId, imageUrl, languageData) VALUES (?, ?, ?);`,
-                                        [mentorsId, imageUrl, "JPN"],
+                                        `INSERT INTO curriculum_image_JPN (mentorsId, imageUrl) VALUES (?, ?);`,
+                                        [mentorsId, imageUrl],
                                         function (error, results, fields) {
                                             if (error) throw error;
                                             console.log("Inserted successfully");
@@ -124,8 +124,8 @@ router.post('/mentors/upload', imageUploader.fields([
 
                                 curriculumKOR.forEach((imageUrl) => {
                                     connection.query(
-                                        `INSERT INTO curriculum_image (mentorsId, imageUrl, languageData) VALUES (?, ?, ?);`,
-                                        [mentorsId, imageUrl, "KOR"],
+                                        `INSERT INTO curriculum_image_KOR (mentorsId, imageUrl) VALUES (?, ?);`,
+                                        [mentorsId, imageUrl],
                                         function (error, results, fields) {
                                             if (error) throw error;
                                             console.log("Inserted successfully");
