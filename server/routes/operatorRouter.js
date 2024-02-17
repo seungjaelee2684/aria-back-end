@@ -27,9 +27,9 @@ router.post('/', async function (req, res) {
             });
 
         } else {
-            res.status(400).json({
+            res.status(403).json({
                 message: "인증 실패...!!",
-                status: 400
+                status: 403
             });
         };
     } catch (error) {

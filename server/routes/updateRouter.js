@@ -124,9 +124,9 @@ router.get('/mentor/:mentorsId', async function (req, res) {
                             mentorInfoDto: mentorInfoData
                         });
                     } else {
-                        res.status(400).json({
+                        res.status(401).json({
                             message: "토큰 만료...! 재인증 필요",
-                            status: 400,
+                            status: 401,
                         });
                     };
                 })
@@ -138,9 +138,9 @@ router.get('/mentor/:mentorsId', async function (req, res) {
                     });
                 });
         } else {
-            res.status(400).json({
+            res.status(401).json({
                 message: "허가 되지 않은 요청...! 인증 필요",
-                status: 400,
+                status: 401,
             });
         };
     } catch (error) {
