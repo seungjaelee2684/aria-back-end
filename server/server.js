@@ -16,7 +16,7 @@ const update = require('./routes/updateRouter');
 const PORT = process.env.PORT || 8080;
 
 const corsOptions = {
-    origin: true, // 허용할 출처
+    origin: ['https://www.aria-academy.com', 'http://localhost:3000'], // 허용할 출처
     credentials: true,
     optionsSuccessStatus: 200, // CORS 요청 성공 상태 코드
 };
@@ -56,7 +56,6 @@ app.use('/api/banners', banner);
 app.use('/api/update', update);
 
 connectMySQL.connect();
-// connectMongoDB();
 
 app.get("/", (req, res) => {
     res.json({ message: `Server is running on port ${PORT}` });

@@ -167,9 +167,9 @@ router.post('/mentors/upload', imageUploader.fields([
                         });
                     };
                 } else {
-                    res.status(400).json({
+                    res.status(401).json({
                         message: "토큰 인증 실패...!",
-                        status: 400
+                        status: 401
                     });
                 };
             })
@@ -181,9 +181,9 @@ router.post('/mentors/upload', imageUploader.fields([
                 });
             });
     } else {
-        res.status(400).json({
+        res.status(401).json({
             message: "토큰 인증 실패...!",
-            status: 400
+            status: 401
         });
     };
 });
@@ -406,9 +406,9 @@ router.post('/mentors/update/:mentorsId', imageUploader.fields([
                         });
                     }
                 } else {
-                    res.status(400).json({
+                    res.status(401).json({
                         message: "토큰 인증 실패...!",
-                        status: 400
+                        status: 401
                     });
                 };
             })
@@ -420,9 +420,9 @@ router.post('/mentors/update/:mentorsId', imageUploader.fields([
                 });
             });
     } else {
-        res.status(400).json({
+        res.status(401).json({
             message: "토큰 인증 실패...!",
-            status: 400
+            status: 401
         });
     };
 });
