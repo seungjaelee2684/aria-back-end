@@ -1,0 +1,4 @@
+module.exports = {
+    AUTHENTICATION_KEY: "C51G2E3D7AB2E6O70WF9Q5",
+    PERMISSION_IDS: ["sean2684", "alsrb123"]
+};

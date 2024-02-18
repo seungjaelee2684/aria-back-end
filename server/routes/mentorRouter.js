@@ -7,8 +7,7 @@ const secretKey = require('../app/config/jwt');
 
 // 강사 전체목록 조회 api
 router.get('/', async function (req, res) {
-    const requestCookie = req.headers.cookie;
-    const token = requestCookie?.substring(4);
+    const token = req?.headers.cookie;
     const page = parseInt(req.query.page);
     const size = parseInt(req.query.size);
     const nationstatus = req.query.nationstatus;
@@ -118,8 +117,7 @@ router.get('/', async function (req, res) {
 
 // 강사 상세조회 api
 router.get('/:mentorsId', async function (req, res) {
-    const requestCookie = req.headers.cookie;
-    const token = requestCookie?.substring(4);
+    const token = req?.headers.cookie;
     const mentorsId = req.params.mentorsId;
 
     try {
