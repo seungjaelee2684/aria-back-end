@@ -24,9 +24,7 @@ router.post('/mentors/upload', imageUploader.fields([
     { name: "mentorInfoData" },
     { name: "SNS" }
 ]), async function (req, res) {
-    const requestCookie = req?.headers.cookie;
-    const token = requestCookie ? requestCookie.substring(4) : null;
-    console.log(token);
+    const token = req?.headers["authorization"];
 
     console.log(req.body["mentorInfoData"], req.body["SNS"]);
     if (token) {
@@ -197,10 +195,8 @@ router.post('/mentors/update/:mentorsId', imageUploader.fields([
     { name: "mentorInfoData" },
     { name: "SNS" }
 ]), async function (req, res) {
-    const requestCookie = req?.headers.cookie;
-    const token = requestCookie ? requestCookie.substring(4) : null;
+    const token = req?.headers["authorization"];
     const mentorsId = req.params.mentorsId;
-    console.log(token);
 
     if (token) {
         async function verifyToken(token, secret) {

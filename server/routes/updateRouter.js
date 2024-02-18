@@ -7,8 +7,7 @@ const secretKey = require('../app/config/jwt');
 
 // 강사 정보조회 api
 router.get('/mentor/:mentorsId', async function (req, res) {
-    const requestCookie = req?.headers.cookie;
-    const token = requestCookie ? requestCookie.substring(4) : null;
+    const token = req?.headers["Authorization"];
     const mentorsId = req.params.mentorsId;
 
     try {

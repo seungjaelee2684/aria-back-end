@@ -7,8 +7,7 @@ const secretKey = require('../app/config/jwt');
 
 // 강사 슬라이드 배너 api
 router.get('/mentors', async function (req, res) {
-    const requestCookie = req?.headers.cookie;
-    const token = requestCookie ? requestCookie.substring(4) : null;
+    const token = req?.headers["authorization"];
     const newDate = new Date();
 
     try {
@@ -54,9 +53,9 @@ router.get('/mentors', async function (req, res) {
                             ...bannerData
                         });
                     } else {
-                        res.status(200).json({
+                        res.status(201).json({
                             message: "정보 조회 성공",
-                            status: 200,
+                            status: 201,
                             isOperator: false,
                             ...bannerData
                         });
@@ -70,9 +69,9 @@ router.get('/mentors', async function (req, res) {
                     });
                 });
         } else {
-            res.status(200).json({
+            res.status(201).json({
                 message: "정보 조회 성공",
-                status: 200,
+                status: 201,
                 isOperator: false,
                 ...bannerData
             });

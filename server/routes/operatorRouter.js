@@ -21,7 +21,7 @@ router.post('/', async function (req, res) {
                 issuer: "op"
             });
 
-            res.cookie('jwt', jwtToken);
+            res.set('Authorization', jwtToken);
             res.status(200).json({
                 message: "토큰이 발급되었습니다.",
                 status: 200
