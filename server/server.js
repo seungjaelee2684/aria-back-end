@@ -31,7 +31,7 @@ app.use(
         saveUninitialized: true, // 초기화되지 않은 세션 저장할지
         secret: "Aria", // 세션 암호화 키
         cookie: {
-            // domain: 'example.com',
+            domain: 'www.aria-academy.com',
             // path: 'foo/bar',
             expires: expiryDate,
             httpOnly: true, // JavaScript에서 쿠키 접근을 방지할지
