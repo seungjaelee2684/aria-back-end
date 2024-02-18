@@ -4,16 +4,15 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const secretKey = require('../app/config/jwt');
 const SECRET_KEY = secretKey;
+const PERMISSION = require('../app/config/permission');
 
 router.post('/', async function (req, res) {
-    const authenticationKey = process.env.AUTHENTICATION_KEY;
-    const operateId1= process.env.OPERATE_ID_SJ;
-    const { operateId, password } = req.body;
-    const permissionId = [operateId1, "alsrb123"]
+    const authenticationKey = PERMISSION?.AUTHENTICATION_KEY;
+    const permissionId = PERMISSION?.PERMISSION_IDS;
+    const { operateId, password } = req?.body;
 
     try {
-        
-        if (password === authenticationKey && permissionId.includes(operateId)) {
+        if ((password === authenticationKey) && permissionId.includes(operateId)) {
             const jwtToken = jwt.sign({
                 type: "JWT",
                 state: "Operator"

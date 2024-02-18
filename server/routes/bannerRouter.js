@@ -7,8 +7,7 @@ const secretKey = require('../app/config/jwt');
 
 // 강사 슬라이드 배너 api
 router.get('/mentors', async function (req, res) {
-    const requestCookie = req.headers.cookie;
-    const token = requestCookie?.substring(4);
+    const token = req?.headers.cookie;
     const newDate = new Date();
 
     try {
