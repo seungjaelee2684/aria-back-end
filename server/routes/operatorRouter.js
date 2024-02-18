@@ -5,14 +5,13 @@ const jwt = require('jsonwebtoken');
 const secretKey = require('../app/config/jwt');
 const SECRET_KEY = secretKey;
 const PERMISSION = require('../app/config/permission');
-const bcrypt = require('bcrypt');
 
 router.post('/', async function (req, res) {
+    const authenticationKey = PERMISSION?.AUTHENTICATION_KEY;
     const permissionId = PERMISSION?.PERMISSION_IDS;
     const { operateId, password } = req?.body;
-    const passwordMatch = await bcrypt.compare(password, await PERMISSION.hashPassword());
     try {
-        if ((passwordMatch) && permissionId.includes(operateId)) {
+        if ((password === authenticationKey) && permissionId.includes(operateId)) {
             const jwtToken = jwt.sign({
                 type: "JWT",
                 state: "Operator"
