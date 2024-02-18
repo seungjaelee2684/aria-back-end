@@ -7,8 +7,7 @@ const secretKey = require('../app/config/jwt');
 
 // 강사 전체목록 조회 api
 router.get('/', async function (req, res) {
-    const requestCookie = req?.headers.cookie;
-    const token = requestCookie ? requestCookie.substring(4) : null;
+    const token = req?.headers["authorization"];
     const page = parseInt(req.query.page);
     const size = parseInt(req.query.size);
     const nationstatus = req.query.nationstatus;
@@ -82,9 +81,9 @@ router.get('/', async function (req, res) {
                             ...mentorListData
                         });
                     } else {
-                        res.status(200).json({
+                        res.status(201).json({
                             message: "강사목록 조회 완료!",
-                            status: 200,
+                            status: 201,
                             isOperator: false,
                             totalNumber: total[0].total_rows,
                             ...mentorListData
@@ -99,9 +98,9 @@ router.get('/', async function (req, res) {
                     });
                 });
         } else {
-            res.status(200).json({
+            res.status(201).json({
                 message: "강사목록 조회 완료!",
-                status: 200,
+                status: 201,
                 isOperator: false,
                 totalNumber: total[0].total_rows,
                 ...mentorListData
@@ -118,8 +117,7 @@ router.get('/', async function (req, res) {
 
 // 강사 상세조회 api
 router.get('/:mentorsId', async function (req, res) {
-    const requestCookie = req?.headers.cookie;
-    const token = requestCookie ? requestCookie.substring(4) : null;
+    const token = req?.headers["authorization"];
     const mentorsId = req.params.mentorsId;
 
     try {
@@ -226,9 +224,9 @@ router.get('/:mentorsId', async function (req, res) {
                             ...mentorDetailData
                         });
                     } else {
-                        res.status(200).json({
+                        res.status(201).json({
                             message: "강사 조회 완료!",
-                            status: 200,
+                            status: 201,
                             isOperator: false,
                             ...mentorDetailData
                         });
@@ -242,9 +240,9 @@ router.get('/:mentorsId', async function (req, res) {
                     });
                 });
         } else {
-            res.status(200).json({
+            res.status(201).json({
                 message: "강사 조회 완료!",
-                status: 200,
+                status: 201,
                 isOperator: false,
                 ...mentorDetailData
             });
