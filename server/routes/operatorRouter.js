@@ -8,8 +8,9 @@ const SECRET_KEY = secretKey;
 router.post('/', async function (req, res) {
     try {
         const authenticationKey = "C51G2E3D7AB2E6O70WF9Q5"
-        const { password } = req.body;
-        if (password === authenticationKey) {
+        const { operateId, password } = req.body;
+        const permissionId = ["sean2684", "alsrb123"]
+        if (password === authenticationKey && permissionId.includes(operateId)) {
 
             // jwt.sign(payload, secretOrPrivateKey, [options, callback])
             const jwtToken = jwt.sign({
