@@ -6,13 +6,14 @@ const secretKey = require('../app/config/jwt');
 const SECRET_KEY = secretKey;
 
 router.post('/', async function (req, res) {
-    try {
-        const authenticationKey = "C51G2E3D7AB2E6O70WF9Q5"
-        const { operateId, password } = req.body;
-        const permissionId = ["sean2684", "alsrb123"]
-        if (password === authenticationKey && permissionId.includes(operateId)) {
+    const authenticationKey = process.env.AUTHENTICATION_KEY;
+    const operateId1= process.env.OPERATE_ID_SJ;
+    const { operateId, password } = req.body;
+    const permissionId = [operateId1, "alsrb123"]
 
-            // jwt.sign(payload, secretOrPrivateKey, [options, callback])
+    try {
+        
+        if (password === authenticationKey && permissionId.includes(operateId)) {
             const jwtToken = jwt.sign({
                 type: "JWT",
                 state: "Operator"
