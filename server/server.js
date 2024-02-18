@@ -19,6 +19,9 @@ const corsOptions = {
     origin: ['https://www.aria-academy.com', 'http://localhost:3000', 'http://localhost:8080'], // 허용할 출처
     credentials: true,
     optionsSuccessStatus: 200, // CORS 요청 성공 상태 코드
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'], // 허용할 HTTP 메소드
+    allowedHeaders: ['Content-Type', 'Authorization'], // 허용할 요청 헤더
+    exposedHeaders: ['Content-Type', 'Authorization'] // 노출할 응답 헤더
 };
 
 app.use(cookieParser());
