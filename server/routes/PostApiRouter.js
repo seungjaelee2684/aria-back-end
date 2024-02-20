@@ -186,7 +186,7 @@ router.post('/mentors/upload', imageUploader.fields([
     };
 });
 
-router.post('/mentors/update/:mentorsId', imageUploader.fields([
+router.patch('/mentors/update/:mentorsId', imageUploader.fields([
     { name: "banner_image", maxCount: 1 },
     { name: "nickname_image", maxCount: 1 },
     { name: "thumbnail_image", maxCount: 1 },
