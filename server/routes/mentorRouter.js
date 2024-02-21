@@ -185,9 +185,6 @@ router.get('/:mentorsId', async function (req, res) {
             );
         });
 
-        // const imageENG = curriculum.filter((item) => item.languageData === "ENG").map((item) => item.imageUrl);
-        // const imageJPN = curriculum.filter((item) => item.languageData === "JPN").map((item) => item.imageUrl);
-        // const imageKOR = curriculum.filter((item) => item.languageData === "KOR").map((item) => item.imageUrl);
         const linkData = Object.keys(link[0]).map((key) => ({link: link[0][key]}));
         const portfolioImages = portfolio.map((img) => img.imageUrl);
 
