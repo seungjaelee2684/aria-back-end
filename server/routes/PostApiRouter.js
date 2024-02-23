@@ -423,4 +423,152 @@ router.patch('/mentors/update/:mentorsId', imageUploader.fields([
     };
 });
 
+// 공지사항 업로드 api
+router.post('/notice/upload', imageUploader.fields([
+    { name: "notice_image", maxCount: 15 },
+    { name: "noticeInfoData" },
+    { name: "content" }
+]),async function (req, res) {
+    const token = req?.headers["authorization"];
+
+    if (token) {
+        async function verifyToken(token, secret) {
+            try {
+                const decoded = await jwt.verify(token, secret);
+                return true;
+            } catch (error) {
+                return false;
+            };
+        };
+
+        verifyToken(token, secretKey)
+            .then((isTokenValid) => {
+                if (isTokenValid) {
+                    try {
+                        const noticeImages = req.files['notice_image'] ? req.files['notice_image']?.map(file => file.location) : [null];
+                        const { englishcontent, japanesecontent, content } = JSON.parse(req.body["content"]);
+                        const { writer, englishtitle, japanesetitle, title, state } = JSON.parse(req.body["noticeInfoData"]);
+
+                        const newDate = new Date();
+                        const year = newDate.getFullYear();
+                        const month = newDate.getMonth() + 1;
+                        const day = newDate.getDate();
+                        const date = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
+
+                        const noticeENG = noticeImages[0] ? noticeImages.filter((image) => image.includes("ENG")) : [null];
+                        const noticeJPN = noticeImages[0] ? noticeImages.filter((image) => image.includes("JPN")) : [null];
+                        const noticeKOR = noticeImages[0] ? noticeImages.filter((image) => image.includes("KOR")) : [null];
+
+                        console.log(noticeENG, noticeJPN, noticeKOR);
+
+                        connection.query(
+                            `INSERT INTO mentors (writer, englishtitle, japanesetitle, title, state, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+                            [writer, englishtitle, japanesetitle, title, state, date, date],
+                            async function (error, results, fields) {
+                                if (error) throw error;
+                                console.log("Inserted successfully");
+
+                                const noticeId = results.insertId;
+
+                                noticeENG.forEach((imageUrl) => {
+                                    connection.query(
+                                        `INSERT INTO notice_image_ENG (noticeId, imageUrl) VALUES (?, ?);`,
+                                        [noticeId, imageUrl],
+                                        function (error, results, fields) {
+                                            if (error) throw error;
+                                            console.log("Inserted successfully");
+                                        }
+                                    );
+                                });
+
+                                noticeJPN.forEach((imageUrl) => {
+                                    connection.query(
+                                        `INSERT INTO notice_image_JPN (noticeId, imageUrl) VALUES (?, ?);`,
+                                        [noticeId, imageUrl],
+                                        function (error, results, fields) {
+                                            if (error) throw error;
+                                            console.log("Inserted successfully");
+                                        }
+                                    );
+                                });
+
+                                noticeKOR.forEach((imageUrl) => {
+                                    connection.query(
+                                        `INSERT INTO notice_image_KOR (noticeId, imageUrl) VALUES (?, ?);`,
+                                        [noticeId, imageUrl],
+                                        function (error, results, fields) {
+                                            if (error) throw error;
+                                            console.log("Inserted successfully");
+                                        }
+                                    );
+                                });
+
+                                englishcontent.forEach((content) => {
+                                    connection.query(
+                                        `INSERT INTO notice_content_ENG (noticeId, content) VALUES (?, ?);`,
+                                        [noticeId, content],
+                                        function (error, results, fields) {
+                                            if (error) throw error;
+                                            console.log("Inserted successfully");
+                                        }
+                                    );
+                                });
+
+                                japanesecontent.forEach((content) => {
+                                    connection.query(
+                                        `INSERT INTO notice_content_JPN (noticeId, content) VALUES (?, ?);`,
+                                        [noticeId, content],
+                                        function (error, results, fields) {
+                                            if (error) throw error;
+                                            console.log("Inserted successfully");
+                                        }
+                                    );
+                                });
+
+                                content.forEach((content) => {
+                                    connection.query(
+                                        `INSERT INTO notice_content_KOR (noticeId, content) VALUES (?, ?);`,
+                                        [noticeId, content],
+                                        function (error, results, fields) {
+                                            if (error) throw error;
+                                            console.log("Inserted successfully");
+                                        }
+                                    );
+                                });
+                            }
+                        );
+
+                        res.status(200).json({
+                            message: "업로드 성공!",
+                            status: 200
+                        });
+                    } catch (error) {
+                        console.error(error);
+                        res.status(403).json({
+                            message: "업로드 실패...!",
+                            status: 403
+                        });
+                    };
+                } else {
+                    res.status(401).json({
+                        message: "토큰 인증 실패...!",
+                        status: 401
+                    });
+                };
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).json({
+                    message: "서버 오류...!",
+                    status: 500
+                });
+            });
+    } else {
+        res.status(401).json({
+            message: "토큰 인증 실패...!",
+            status: 401
+        });
+    };
+});
+
 module.exports = router;

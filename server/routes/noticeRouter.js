@@ -1,15 +1,226 @@
 const express = require('express');
 const router = express.Router();
-const cookieParser = require('cookie-parser');
+const imageUploader = require('../database/S3storage');
+const connection = require('../database/MySQL');
+const jwt = require('jsonwebtoken');
+const secretKey = require('../app/config/jwt');
+const AWS = require('aws-sdk');
 
-router.use(cookieParser());
+// 공지사항 목록 조회 api
+router.get('/', async function (req, res) {
+    const token = req?.headers["authorization"];
+    const page = parseInt(req.query.page);
+    const size = parseInt(req.query.size);
+    const noticestatus = req.query.noticestatus;
+    const startIndex = parseInt(size * (page - 1));
+    const newDate = new Date();
 
-router.post('/', async function (req, res) {
-    res.send(`notice`);
+    try {
+        const noticeInfo = await new Promise((resolve, reject) => {
+            connection.query(
+                `${(noticestatus === "All")
+                    ? `SELECT notice.*, notice_image_ENG AS noticeImageENG
+                        FROM notice
+                        INNER JOIN notice_image_ENG ON notice.noticeId = notice_image_ENG.noticeId
+                        ORDER BY notice.noticeId DESC
+                        LIMIT ?, ?;`
+                    : `SELECT notice.*, notice_image_ENG AS noticeImageENG
+                        FROM notice
+                        INNER JOIN notice_image_ENG ON notice.noticeId = notice_image_ENG.noticeId
+                        WHERE notice.state = ?
+                        ORDER BY notice.noticeId DESC
+                        LIMIT ?, ?;`}`,
+                (noticestatus === "All") ? [startIndex, size] : [noticestatus, startIndex, size],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            )
+        });
+
+        const total = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT COUNT(*) AS total_rows FROM notice;`,
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
+        const noticeData = noticeInfo.map((item) => {
+            const targetDate = new Date(item?.opendate);
+            if (newDate >= targetDate) {
+                return {...item, isopen: true};
+            } else {
+                return {...item, isopen: false};
+            };
+        });
+
+        const noticeListData = { noticeListData: noticeData };
+
+        if (token) {
+            async function verifyToken (token, secret) {
+                try {
+                    const decoded = await jwt.verify(token, secret);
+                    return true;
+                } catch (error) {
+                    return false;
+                };
+            };
+
+            verifyToken(token, secretKey)
+                .then((isTokenValid) => {
+                    if (isTokenValid) {
+                        res.status(200).json({
+                            message: "공지목록 조회 완료!",
+                            status: 200,
+                            isOperator: true,
+                            totalNumber: total[0].total_rows,
+                            ...noticeListData
+                        });
+                    } else {
+                        res.status(201).json({
+                            message: "공지목록 조회 완료!",
+                            status: 201,
+                            isOperator: false,
+                            totalNumber: total[0].total_rows,
+                            ...noticeListData
+                        });
+                    };
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.status(500).json({
+                        message: "서버 오류...!",
+                        status: 500
+                    });
+                });
+        } else {
+            res.status(201).json({
+                message: "공지목록 조회 완료!",
+                status: 201,
+                isOperator: false,
+                totalNumber: total[0].total_rows,
+                ...noticeListData
+            });
+        };
+    } catch (error) {
+        console.error(error);
+        res.status(403).json({
+            message: "Set the page and filter settings correctly and try again.",
+            status: 403
+        });
+    };
 });
 
-router.get('/', async function (req, res) {
-    res.send(`notice`);
+// 공지사항 상세 조회 api
+router.get('/:noticeId', async function (req, res) {
+    const token = req?.headers["authorization"];
+    const noticeId = req.params.noticeId;
+
+    try {
+        const noticeENG = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT notice_image_ENG.imageUrl, notice_content_ENG.content
+                FROM notice_image_ENG
+                INNER JOIN notice_content_ENG ON notice.noticeId = notice_content_ENG.noticeId
+                WHERE notice_image_ENG.noticeId = ?;`,
+                [noticeId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
+        const noticeJPN = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT notice_image_JPN.imageUrl, notice_content_JPN.content
+                FROM notice_image_JPN
+                INNER JOIN notice_content_JPN ON notice.noticeId = notice_content_JPN.noticeId
+                WHERE notice_image_JPN.noticeId = ?;`,
+                [noticeId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
+        const noticeKOR = await new Promise((resolve, reject) => {
+            connection.query(
+                `SELECT notice_image_KOR.imageUrl, notice_content_KOR.content
+                FROM notice_image_KOR
+                INNER JOIN notice_content_KOR ON notice.noticeId = notice_content_KOR.noticeId
+                WHERE notice_image_KOR.noticeId = ?;`,
+                [noticeId],
+                async function (error, results, fields) {
+                    if (error) throw error;
+                    resolve(results);
+                }
+            );
+        });
+
+        const noticeDetailData = {
+            noticeId: noticeId,
+            noticeDetailData: {
+                noticeENG,
+                noticeJPN,
+                noticeKOR
+            }
+        };
+
+        if (token) {
+            async function verifyToken (token, secret) {
+                try {
+                    const decoded = await jwt.verify(token, secret);
+                    return true;
+                } catch (error) {
+                    return false;
+                };
+            };
+
+            verifyToken(token, secretKey)
+                .then((isTokenValid) => {
+                    if (isTokenValid) {
+                        res.status(200).json({
+                            message: "공지 조회 완료!",
+                            status: 200,
+                            isOperator: true,
+                            ...noticeDetailData
+                        });
+                    } else {
+                        res.status(201).json({
+                            message: "공지 조회 완료!",
+                            status: 201,
+                            isOperator: false,
+                            ...noticeDetailData
+                        });
+                    };
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.status(500).json({
+                        message: "서버 오류...!",
+                        status: 500
+                    });
+                });
+        } else {
+            res.status(201).json({
+                message: "공지 조회 완료!",
+                status: 201,
+                isOperator: false,
+                ...noticeDetailData
+            });
+        };
+    } catch (error) {
+        console.error(error);
+        res.status(403).json({
+            message: "강사 조회 실패...!",
+            status: 403
+        });
+    };
 });
 
 module.exports = router;
