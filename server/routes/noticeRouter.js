@@ -19,14 +19,10 @@ router.get('/', async function (req, res) {
         const noticeInfo = await new Promise((resolve, reject) => {
             connection.query(
                 `${(noticestatus === "All")
-                    ? `SELECT notice.*, notice_image_ENG AS noticeImageENG
-                        FROM notice
-                        INNER JOIN notice_image_ENG ON notice.noticeId = notice_image_ENG.noticeId
+                    ? `SELECT * FROM notice
                         ORDER BY notice.noticeId DESC
                         LIMIT ?, ?;`
-                    : `SELECT notice.*, notice_image_ENG AS noticeImageENG
-                        FROM notice
-                        INNER JOIN notice_image_ENG ON notice.noticeId = notice_image_ENG.noticeId
+                    : `SELECT * FROM notice
                         WHERE notice.state = ?
                         ORDER BY notice.noticeId DESC
                         LIMIT ?, ?;`}`,
@@ -40,7 +36,11 @@ router.get('/', async function (req, res) {
 
         const total = await new Promise((resolve, reject) => {
             connection.query(
-                `SELECT COUNT(*) AS total_rows FROM notice;`,
+                `${(noticestatus === "All")
+                    ? `SELECT COUNT(*) AS total_rows FROM notice;`
+                    : `SELECT COUNT(*) AS total_rows FROM notice
+                        WHERE state = ?;`}`,
+                (noticestatus !== "All") && [noticestatus],
                 async function (error, results, fields) {
                     if (error) throw error;
                     resolve(results);
@@ -48,16 +48,7 @@ router.get('/', async function (req, res) {
             );
         });
 
-        const noticeData = noticeInfo.map((item) => {
-            const targetDate = new Date(item?.opendate);
-            if (newDate >= targetDate) {
-                return {...item, isopen: true};
-            } else {
-                return {...item, isopen: false};
-            };
-        });
-
-        const noticeListData = { noticeListData: noticeData };
+        const noticeListData = { noticeListData: noticeInfo, totalCount: total.total_rows };
 
         if (token) {
             async function verifyToken (token, secret) {
