@@ -6,14 +6,6 @@ const jwt = require('jsonwebtoken');
 const secretKey = require('../app/config/jwt');
 const AWS = require('aws-sdk');
 
-// AWS 계정 자격 증명 설정
-const credentials = new AWS.SharedIniFileCredentials({ profile: 'your_profile_name' }); // 또는 AWS 설정을 통해 직접 설정
-AWS.config.credentials = credentials;
-
-// AWS SDK 설정
-const s3 = new AWS.S3();
-const BucketName = 'your_bucket_name'; // S3 버킷 이름
-
 // 강사 추가 api
 router.post('/mentors/upload', imageUploader.fields([
     { name: "banner_image", maxCount: 1 },
@@ -186,6 +178,7 @@ router.post('/mentors/upload', imageUploader.fields([
     };
 });
 
+// 강사 정보 수정 api
 router.patch('/mentors/update/:mentorsId', imageUploader.fields([
     { name: "banner_image", maxCount: 1 },
     { name: "nickname_image", maxCount: 1 },
@@ -462,7 +455,7 @@ router.post('/notice/upload', imageUploader.fields([
                         console.log(noticeENG, noticeJPN, noticeKOR);
 
                         connection.query(
-                            `INSERT INTO mentors (writer, englishtitle, japanesetitle, title, state, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+                            `INSERT INTO notice (writer, englishtitle, japanesetitle, title, state, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?);`,
                             [writer, englishtitle, japanesetitle, title, state, date, date],
                             async function (error, results, fields) {
                                 if (error) throw error;
