@@ -7,8 +7,8 @@ const { S3Client, HeadObjectCommand, PutObjectCommand } = require('@aws-sdk/clie
 
 AWS.config.update({
     region: 'ap-northeast-2',
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    accessKeyId: "AKIA2WTT76ZXDWZMVBJQ",
+    secretAccessKey: "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"
 });
 
 const s3Client = new S3Client();
