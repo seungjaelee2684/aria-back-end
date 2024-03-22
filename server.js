@@ -3,15 +3,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const session = require('express-session');
-const connectMongoDB = require("./database/MongoDB");
-const connectMySQL = require('./database/MySQL');
+const connectMongoDB = require("./server/database/MongoDB");
+const connectMySQL = require('./server/database/MySQL');
 const cookieParser = require('cookie-parser');
-const post = require('./routes/PostApiRouter');
-const mentor = require('./routes/mentorRouter');
-const notice = require('./routes/noticeRouter');
-const operator = require('./routes/operatorRouter');
-const banner = require('./routes/bannerRouter');
-const update = require('./routes/updateRouter');
+const post = require('./server/routes/PostApiRouter');
+const mentor = require('./server/routes/mentorRouter');
+const notice = require('./server/routes/noticeRouter');
+const operator = require('./server/routes/operatorRouter');
+const banner = require('./server/routes/bannerRouter');
+const update = require('./server/routes/updateRouter');
 
 const PORT = process.env.PORT || 8080;
 
